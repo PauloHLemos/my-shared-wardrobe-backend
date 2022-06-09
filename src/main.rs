@@ -30,7 +30,15 @@ fn wardrobe() -> String {
     return stuff_str;
 }
 
+use bin::insert_item::insert_item;
+
+#[get("/insert/<item>")]
+fn insert(item: &str) {
+    insert_item(&10, item);
+}
+
+
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index,hello,wardrobe])
+    rocket::build().mount("/", routes![index,hello,wardrobe,insert])
 }
