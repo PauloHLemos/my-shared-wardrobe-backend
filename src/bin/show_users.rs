@@ -5,7 +5,7 @@ use self::drp02_backend::*;
 use self::models::*;
 use self::diesel::prelude::*;
 
-fn main() {
+pub fn main() {
     use drp02_backend::schema::Users::dsl::*;
 
     let connection = establish_connection();
