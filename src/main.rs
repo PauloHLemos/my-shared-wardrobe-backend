@@ -16,7 +16,21 @@ fn hello(name: &str, age: u8, cool: bool) -> String {
     }
 }
 
+pub mod bin;
+use bin::show_items::get_items;
+
+#[get("/wardrobe")]
+fn wardrobe() -> String {
+    let mut stuff_str = String::new();
+
+        for item in get_items() {
+            stuff_str.push_str(&item.item);
+            stuff_str.push_str(",");
+        }
+    return stuff_str;
+}
+
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index,hello])
+    rocket::build().mount("/", routes![index,hello,wardrobe])
 }

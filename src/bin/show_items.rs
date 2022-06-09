@@ -5,7 +5,7 @@ use self::drp02_backend::*;
 use self::models::*;
 use self::diesel::prelude::*;
 
-fn get_items() -> Vec<Item> {
+pub fn get_items() -> Vec<Item> {
     use drp02_backend::schema::Items::dsl::*;
 
     let connection = establish_connection();
