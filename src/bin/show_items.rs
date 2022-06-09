@@ -5,6 +5,8 @@ use self::drp02_backend::*;
 use self::models::*;
 use self::diesel::prelude::*;
 
+pub fn main() {}
+
 pub fn get_items() -> Vec<Item> {
     use drp02_backend::schema::Items::dsl::*;
 
