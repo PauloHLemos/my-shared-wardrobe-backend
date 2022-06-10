@@ -34,7 +34,13 @@ use bin::insert_item::insert_item;
 
 #[get("/insert/<item>")]
 fn insert(item: &str) {
-    insert_item(&10, item);
+    let mut lastindex = 1;
+    for item in get_items() {
+        if lastindex < item.id {
+            lastindex = item.id;
+        };
+    }
+    insert_item(&(lastindex + 1), item);
 }
 
 
