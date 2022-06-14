@@ -5,8 +5,9 @@ use self::drp02_backend::*;
 
 pub fn main() {}
 
-pub fn insert_item(item_id: &i64, type_: &str) {
+pub fn insert_item(item_id: &i64, type_: &str, name: &str) {
     let connection = establish_connection();
     // TODO: user id currently hardcoded to 1
-    let _item = add_item(&connection, item_id, &1, type_, "donald");
+    // TODO: so is item name
+    let _item = add_item(&connection, item_id, &1, type_, name);
 }
