@@ -24,7 +24,7 @@ fn wardrobe() -> String {
     let mut stuff_str = String::new();
 
         for item in get_items() {
-            stuff_str.push_str(&item.item);
+            stuff_str.push_str(&item.name);
             stuff_str.push_str(",");
         }
     return stuff_str;

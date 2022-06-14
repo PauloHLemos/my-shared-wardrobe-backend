@@ -8,14 +8,22 @@ pub struct User {
 pub struct Item {
     pub id: i64,
     pub uid: i64,
-    pub item: String,
+    pub type_: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub tags: Option<Vec<String>>,
+    pub pics: Vec<String>,
 }
 
-use super::schema::Items;
+use super::schema::items;
 #[derive(Insertable)]
-#[table_name="Items"]
+#[table_name="items"]
 pub struct NewItem<'a> {
     pub item_id: &'a i64,
     pub uid: &'a i64,
     pub type_: &'a str,
+    pub name: &'a str,
+    // pub description: &'a str,
+    // pub tags: &'a str,
+    // pub pics: &'a str,
 }

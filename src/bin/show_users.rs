@@ -8,10 +8,10 @@ use self::diesel::prelude::*;
 pub fn main() {}
 
 pub fn show_users() {
-    use drp02_backend::schema::Users::dsl::*;
+    use drp02_backend::schema::users::dsl::*;
 
     let connection = establish_connection();
-    let results = Users
+    let results = users
         .limit(5)
         .load::<User>(&connection)
         .expect("Error loading users");

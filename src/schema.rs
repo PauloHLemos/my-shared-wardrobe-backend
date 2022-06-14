@@ -1,5 +1,5 @@
 table! {
-    Items (item_id) {
+    items (item_id) {
         item_id -> Int8,
         uid -> Int8,
         #[sql_name = "type"]
@@ -12,15 +12,15 @@ table! {
 }
 
 table! {
-    Users (uid) {
+    users (uid) {
         uid -> Int8,
         name -> Varchar,
     }
 }
 
-joinable!(Items -> Users (uid));
+joinable!(items -> users (uid));
 
 allow_tables_to_appear_in_same_query!(
-    Items,
-    Users,
+    items,
+    users,
 );

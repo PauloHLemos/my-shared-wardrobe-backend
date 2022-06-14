@@ -8,10 +8,10 @@ use self::diesel::prelude::*;
 pub fn main() {}
 
 pub fn get_items() -> Vec<Item> {
-    use drp02_backend::schema::Items::dsl::*;
+    use drp02_backend::schema::items::dsl::*;
 
     let connection = establish_connection();
-    let results = Items.filter(uid.eq(1))
+    let results = items.filter(uid.eq(1))
         .limit(100)
         .load::<Item>(&connection)
         .expect("Error loading items");

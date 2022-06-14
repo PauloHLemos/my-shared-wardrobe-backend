@@ -8,5 +8,5 @@ pub fn main() {}
 pub fn insert_item(item_id: &i64, type_: &str) {
     let connection = establish_connection();
     // TODO: user id currently hardcoded to 1
-    let item = add_item(&connection, item_id, &1, type_);
+    let _item = add_item(&connection, item_id, &1, type_, "donald");
 }
