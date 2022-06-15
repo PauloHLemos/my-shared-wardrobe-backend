@@ -2,6 +2,16 @@
 
 #[macro_use] extern crate rocket;
 
+pub mod bin;
+
+use rocket::serde::Serialize;
+use rocket::Request;
+use rocket::serde::json::Json;
+
+use drp02_backend::models::Item;
+use bin::show_items::get_items;
+use bin::insert_item::insert_item;
+
 #[get("/")]
 fn index() -> &'static str {
   "<Hello WORLD>"
@@ -15,9 +25,6 @@ fn hello(name: &str, age: u8, cool: bool) -> String {
         format!("{}, we need to talk about your coolness.", name)
     }
 }
-
-pub mod bin;
-use bin::show_items::get_items;
 
 #[get("/wardrobe")]
 fn wardrobe() -> String {
@@ -45,8 +52,6 @@ fn wardrobe() -> String {
     return items_str;
 }
 
-use bin::insert_item::insert_item;
-
 #[get("/insert/<type_>/<name>")]
 fn insert(type_: &str, name: &str) {
     let mut lastindex = 1;
@@ -58,8 +63,21 @@ fn insert(type_: &str, name: &str) {
     insert_item(&(lastindex + 1), type_, name);
 }
 
+#[get("/users")]
+fn route() -> Json<Item> {
+    Item {
+        id: 69,
+        uid: 1,
+        type_: String::from("tshirt"),
+        name: String::from("old red tshirt"),
+        description: Some(String::from("This is a tshirt i dont like")),
+        tags: Some(vec![String::from("old")]),
+        pics: vec![String::from("oldtshirt.com")],
+    }.into()
+}
+
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index,hello,wardrobe,insert])
+    rocket::build().mount("/", routes![index,hello,wardrobe,insert,route])
 }

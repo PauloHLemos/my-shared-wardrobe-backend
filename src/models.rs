@@ -1,10 +1,13 @@
+use rocket::serde::Serialize;
+
 #[derive(Queryable)]
 pub struct User {
     pub uid: i64,
     pub name: String,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize, Debug)]
+#[serde( crate = "rocket::serde" )]
 pub struct Item {
     pub id: i64,
     pub uid: i64,
