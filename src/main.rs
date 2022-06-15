@@ -5,6 +5,7 @@
 pub mod bin;
 
 use rocket::serde::Serialize;
+use rocket::serde::Deserialize;
 use rocket::Request;
 use rocket::serde::json::Json;
 
@@ -54,14 +55,20 @@ fn wardrobe_plain() -> String {
 
 #[get("/insert/<type_>/<name>")]
 fn insert(type_: &str, name: &str) {
-    let mut lastindex = 1;
-    for item in get_items() {
-        if lastindex < item.id {
-            lastindex = item.id;
-        };
-    }
-    insert_item(&(lastindex + 1), type_, name);
+    insert_item(type_, name);
 }
+
+// #[post("/insert_item", format = "json", data = "<item>")]
+// fn new_item(item: Json<NewItem>) {
+//     add_item(item)
+//     let mut lastindex = 1;
+//     for item in get_items() {
+//         if lastindex < item.id {
+//             lastindex = item.id;
+//         };
+//     }
+//     insert_item(&(lastindex + 1), item.type_, item.name);
+// }
 
 #[get("/wardrobe")]
 fn wardrobe() -> Json<Vec<Item>> {

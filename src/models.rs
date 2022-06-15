@@ -22,7 +22,7 @@ use super::schema::items;
 #[derive(Insertable)]
 #[table_name="items"]
 pub struct NewItem<'a> {
-    pub item_id: &'a i64,
+    // pub item_id: &'a i64,
     pub uid: &'a i64,
     pub type_: &'a str,
     pub name: &'a str,
