@@ -6,12 +6,11 @@ use drp02_backend::models::NewItem;
 
 pub fn main() {}
 
-pub fn insert_item(type_: &str, name: &str) {
-    let connection = establish_connection();
+pub fn insert_item_plain(type_: &str, name: &str) {
     // TODO: user id currently hardcoded to 1
 
     let new_item = NewItem {
-        uid: &1,
+        uid: 1,
         type_: type_,
         name: name,
         description: Some("sample description"), // description
@@ -19,5 +18,10 @@ pub fn insert_item(type_: &str, name: &str) {
         pics: vec!["dummy_url.com"],
     };
 
-    let _item = add_item(&connection, &new_item);
+    insert_item(&new_item);
+}
+
+pub fn insert_item(new_item: &NewItem) {
+    let connection = establish_connection();
+    add_item(&connection, &new_item);
 }

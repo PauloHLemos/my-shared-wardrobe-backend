@@ -1,4 +1,6 @@
-use rocket::serde::Serialize;
+use rocket::serde::{Serialize, Deserialize};
+use super::schema::items;
+
 
 #[derive(Queryable)]
 pub struct User {
@@ -18,12 +20,12 @@ pub struct Item {
     pub pics: Vec<String>,
 }
 
-use super::schema::items;
-#[derive(Insertable)]
+#[derive(Insertable, Deserialize)]
+#[serde( crate = "rocket::serde" )]
 #[table_name="items"]
 pub struct NewItem<'a> {
     // pub item_id: &'a i64,
-    pub uid: &'a i64,
+    pub uid: i64,
     pub type_: &'a str,
     pub name: &'a str,
     pub description: Option<&'a str>,

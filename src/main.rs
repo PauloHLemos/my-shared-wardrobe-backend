@@ -4,14 +4,12 @@
 
 pub mod bin;
 
-use rocket::serde::Serialize;
-use rocket::serde::Deserialize;
-use rocket::Request;
+// use rocket::Request;
 use rocket::serde::json::Json;
 
-use drp02_backend::models::Item;
+use drp02_backend::models::{Item, NewItem};
 use bin::show_items::get_items;
-use bin::insert_item::insert_item;
+use bin::insert_item::{insert_item, insert_item_plain};
 
 #[get("/")]
 fn index() -> &'static str {
@@ -53,30 +51,22 @@ fn wardrobe_plain() -> String {
     return items_str;
 }
 
-#[get("/insert/<type_>/<name>")]
-fn insert(type_: &str, name: &str) {
-    insert_item(type_, name);
+#[get("/insert_item_plain/<type_>/<name>")]
+fn new_item_plain(type_: &str, name: &str) {
+    insert_item_plain(type_, name);
 }
 
-// #[post("/insert_item", format = "json", data = "<item>")]
-// fn new_item(item: Json<NewItem>) {
-//     add_item(item)
-//     let mut lastindex = 1;
-//     for item in get_items() {
-//         if lastindex < item.id {
-//             lastindex = item.id;
-//         };
-//     }
-//     insert_item(&(lastindex + 1), item.type_, item.name);
-// }
+#[post("/insert_item", format = "json", data = "<item>")]
+fn new_item(item: Json<NewItem>) {
+    insert_item(&item);
+}
 
 #[get("/wardrobe")]
 fn wardrobe() -> Json<Vec<Item>> {
     get_items().into()
 }
 
-
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index,hello,wardrobe,insert,wardrobe_plain])
+    rocket::build().mount("/", routes![index,hello,wardrobe,new_item_plain,wardrobe_plain,new_item])
 }
