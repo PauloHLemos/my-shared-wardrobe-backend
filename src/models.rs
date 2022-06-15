@@ -23,7 +23,7 @@ pub struct NewItem<'a> {
     pub uid: &'a i64,
     pub type_: &'a str,
     pub name: &'a str,
-    // pub description: &'a str,
-    // pub tags: &'a str,
-    // pub pics: &'a str,
+    pub description: Option<&'a str>,
+    pub tags: Option<Vec<&'a str>>,
+    pub pics: Vec<&'a str>,
 }
