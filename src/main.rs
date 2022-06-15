@@ -26,8 +26,8 @@ fn hello(name: &str, age: u8, cool: bool) -> String {
     }
 }
 
-#[get("/wardrobe")]
-fn wardrobe() -> String {
+#[get("/wardrobe_plain")]
+fn wardrobe_plain() -> String {
     let mut items_str = String::new();
 
         for item in get_items() {
@@ -63,21 +63,13 @@ fn insert(type_: &str, name: &str) {
     insert_item(&(lastindex + 1), type_, name);
 }
 
-#[get("/users")]
-fn route() -> Json<Item> {
-    Item {
-        id: 69,
-        uid: 1,
-        type_: String::from("tshirt"),
-        name: String::from("old red tshirt"),
-        description: Some(String::from("This is a tshirt i dont like")),
-        tags: Some(vec![String::from("old")]),
-        pics: vec![String::from("oldtshirt.com")],
-    }.into()
+#[get("/wardrobe")]
+fn wardrobe() -> Json<Vec<Item>> {
+    get_items().into()
 }
 
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index,hello,wardrobe,insert,route])
+    rocket::build().mount("/", routes![index,hello,wardrobe,insert,wardrobe_plain])
 }
