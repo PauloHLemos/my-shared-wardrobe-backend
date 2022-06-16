@@ -12,3 +12,7 @@ dotenv = "0.15.0"
 [dependencies.rocket]
 version = "0.5.0-rc.2"
 features = ["json"]
+
+[dependencies.rocket_auth]
+version = "0.3.0"
+features = ["sqlite-db", "redis-session"]

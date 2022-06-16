@@ -6,6 +6,8 @@ pub mod bin;
 
 // use rocket::Request;
 use rocket::serde::json::Json;
+use rocket_auth::{Users, Error, Auth, Signup, Login};
+
 
 use drp02_backend::models::{Item, NewItem};
 use bin::show_items::get_items;
@@ -16,6 +18,8 @@ use bin::delete_item::delete_item;
 fn index() -> &'static str {
   "<Hello WORLD>"
 }
+
+// ---------------------------------- items ----------------------------------
 
 #[get("/wardrobe")]
 fn wardrobe() -> Json<Vec<Item>> {
@@ -62,6 +66,26 @@ fn new_item_plain(type_: &str, name: &str) {
 fn delete_item_req(item_id: i64) {
     delete_item(item_id);
 }
+
+// ------------------------------ user session ---------------------------------------
+
+#[post("/signup", data="
+")] 
+fn signup(form: Form, mut auth: Auth) {
+   auth.signup(&form);
+}
+
+#[post("/login", data="")] 
+fn login(form: Form, mut auth: Auth) {
+   auth.login(&form);
+}
+
+#[get("/logout")] 
+fn logout(mut auth: Auth) {
+   auth.logout();
+}
+
+// --------------------------------------------------------------------------------------
 
 #[launch]
 fn rocket() -> _ {
