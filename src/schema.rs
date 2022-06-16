@@ -8,6 +8,7 @@ table! {
         description -> Nullable<Varchar>,
         tags -> Nullable<Array<Text>>,
         pics -> Array<Text>,
+        likes -> Int8,
     }
 }
 

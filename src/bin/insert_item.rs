@@ -16,6 +16,7 @@ pub fn insert_item_plain(type_: &str, name: &str) {
         description: Some("sample description"), // description
         tags: None,
         pics: vec!["dummy_url.com"],
+        likes: 0,
     };
 
     insert_item(&new_item);

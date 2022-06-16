@@ -11,6 +11,7 @@ use drp02_backend::models::{Item, NewItem};
 use bin::show_items::get_items;
 use bin::insert_item::{insert_item, insert_item_plain};
 use bin::delete_item::delete_item;
+use bin::likes::{like_item, unlike_item};
 
 #[get("/")]
 fn index() -> &'static str {
@@ -63,8 +64,19 @@ fn delete_item_req(item_id: i64) {
     delete_item(item_id);
 }
 
+#[get("/like_item/<item_id>")]
+fn like_item_req(item_id: i64) {
+    like_item(item_id);
+}
+
+#[get("/unlike_item/<item_id>")]
+fn unlike_item_req(item_id: i64) {
+    unlike_item(item_id);
+}
+
+
 #[launch]
 fn rocket() -> _ {
     rocket::build().mount("/", routes![index,wardrobe,new_item_plain,wardrobe_plain,
-            new_item,delete_item_req])
+            new_item,delete_item_req,like_item_req,unlike_item_req])
 }

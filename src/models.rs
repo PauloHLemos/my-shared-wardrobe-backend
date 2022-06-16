@@ -18,6 +18,7 @@ pub struct Item {
     pub description: Option<String>,
     pub tags: Option<Vec<String>>,
     pub pics: Vec<String>,
+    pub likes: i64,
 }
 
 #[derive(Insertable, Deserialize)]
@@ -31,4 +32,5 @@ pub struct NewItem<'a> {
     pub description: Option<&'a str>,
     pub tags: Option<Vec<&'a str>>,
     pub pics: Vec<&'a str>,
+    pub likes: i64,
 }
