@@ -10,19 +10,16 @@ use rocket::serde::json::Json;
 use drp02_backend::models::{Item, NewItem};
 use bin::show_items::get_items;
 use bin::insert_item::{insert_item, insert_item_plain};
+use bin::delete_item::delete_item;
 
 #[get("/")]
 fn index() -> &'static str {
   "<Hello WORLD>"
 }
 
-#[get("/hello/<name>/<age>/<cool>")]
-fn hello(name: &str, age: u8, cool: bool) -> String {
-    if cool {
-        format!("You're a cool {} year old, {}!", age, name)
-    } else {
-        format!("{}, we need to talk about your coolness.", name)
-    }
+#[get("/wardrobe")]
+fn wardrobe() -> Json<Vec<Item>> {
+    get_items().into()
 }
 
 #[get("/wardrobe_plain")]
@@ -51,22 +48,23 @@ fn wardrobe_plain() -> String {
     return items_str;
 }
 
-#[get("/insert_item_plain/<type_>/<name>")]
-fn new_item_plain(type_: &str, name: &str) {
-    insert_item_plain(type_, name);
-}
-
 #[post("/insert_item", format = "json", data = "<item>")]
 fn new_item(item: Json<NewItem>) {
     insert_item(&item);
 }
 
-#[get("/wardrobe")]
-fn wardrobe() -> Json<Vec<Item>> {
-    get_items().into()
+#[get("/insert_item_plain/<type_>/<name>")]
+fn new_item_plain(type_: &str, name: &str) {
+    insert_item_plain(type_, name);
+}
+
+#[get("/delete_item/<item_id>")]
+fn delete_item_req(item_id: i64) {
+    delete_item(item_id);
 }
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index,hello,wardrobe,new_item_plain,wardrobe_plain,new_item])
+    rocket::build().mount("/", routes![index,wardrobe,new_item_plain,wardrobe_plain,
+            new_item,delete_item_req])
 }
