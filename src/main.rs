@@ -101,7 +101,7 @@ pub async fn upload_object(
 
 #[post("/image/<post_id>", format = "image/jpeg", data = "<data>")]
 async fn set_post_image(
-    post_id: usize,
+    post_id: &str,
     data: Data<'_>,
     client: &State<Client>,
 ) -> Result<String, NotFound<String>> {
