@@ -19,7 +19,7 @@ use rocket::Data;
 use rocket::response::status::NotFound;
 use rocket::State;
 
-const bucket_name: &str = "drpbucket"; 
+const BUCKET_NAME: &str = "drpbucket"; 
 
 #[get("/")]
 fn index() -> &'static str {
@@ -89,7 +89,7 @@ pub async fn upload_object(
 ) -> Result<(), Error> {
     client
         .put_object()
-        .bucket(bucket_name)
+        .bucket(BUCKET_NAME)
         .key(key)
         .body(data.into())
         .send()
