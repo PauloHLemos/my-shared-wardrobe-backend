@@ -4,6 +4,8 @@
 
 pub mod bin;
 
+use rocket::data::ToByteUnit;
+use rocket::fairing::AdHoc;
 // use rocket::Request;
 use rocket::serde::json::Json;
 use rocket_auth::{Users, Error, Auth, Signup, Login};
@@ -13,6 +15,13 @@ use drp02_backend::models::{Item, NewItem};
 use bin::show_items::get_items;
 use bin::insert_item::{insert_item, insert_item_plain};
 use bin::delete_item::delete_item;
+use bin::likes::{like_item, unlike_item};
+use aws_sdk_s3::{Client, Error as AWSError};
+use rocket::Data;
+use rocket::response::status::NotFound;
+use rocket::State;
+
+const BUCKET_NAME: &str = "drpbucket"; 
 
 #[get("/")]
 fn index() -> &'static str {
@@ -69,26 +78,91 @@ fn delete_item_req(item_id: i64) {
 
 // ------------------------------ user session ---------------------------------------
 
-#[post("/signup", data="
-")] 
-fn signup(form: Form, mut auth: Auth) {
-   auth.signup(&form);
-}
+// #[post("/signup", data="")] 
+// fn signup(form: Form, mut auth: Auth) {
+//    auth.signup(&form);
+// }
 
-#[post("/login", data="")] 
-fn login(form: Form, mut auth: Auth) {
-   auth.login(&form);
-}
+// #[post("/login", data="")] 
+// fn login(form: Form, mut auth: Auth) {
+//    auth.login(&form);
+// }
 
-#[get("/logout")] 
-fn logout(mut auth: Auth) {
-   auth.logout();
-}
+// #[get("/logout")] 
+// fn logout(mut auth: Auth) {
+//    auth.logout();
+// }
 
 // --------------------------------------------------------------------------------------
+#[get("/like_item/<item_id>")]
+fn like_item_req(item_id: i64) {
+    like_item(item_id);
+}
+
+#[get("/unlike_item/<item_id>")]
+fn unlike_item_req(item_id: i64) {
+    unlike_item(item_id);
+}
+
+pub async fn upload_object(
+    client: &Client,
+    data: Vec<u8>,
+    key: &str,
+) -> Result<(), AWSError> {
+    client
+        .put_object()
+        .bucket(BUCKET_NAME)
+        .key(key)
+        .body(data.into())
+        .send()
+        .await?;
+
+    println!("Uploaded file: {}", key);
+    Ok(())
+}
+
+#[post("/image/<post_id>", format = "image/jpeg", data = "<data>")]
+async fn set_post_image(
+    post_id: &str,
+    data: Data<'_>,
+    client: &State<Client>,
+) -> Result<String, NotFound<String>> {
+    let path = format!("tmp/{}.jpeg", post_id);
+
+    let data = data
+        .open(2u32.mebibytes())
+        .into_bytes()
+        .await
+        .map_err(|e| NotFound(e.to_string()))?;
+
+    image::load_from_memory(data.as_slice()).map_err(|e| NotFound(e.to_string()))?;
+
+    upload_object(  
+        client,
+        data.value,
+        &format!("{}.jpeg", post_id),
+    )
+    .await
+    .map_err(|e| NotFound(e.to_string()))?;
+
+    Ok(path)
+}
+
+async fn initialize_variables() -> Client{
+    let config = aws_config::from_env().load().await;
+    let client = Client::new(&config);
+    return client;
+}
+
 
 #[launch]
 fn rocket() -> _ {
     rocket::build().mount("/", routes![index,wardrobe,new_item_plain,wardrobe_plain,
-            new_item,delete_item_req])
+            new_item,delete_item_req,like_item_req,unlike_item_req,set_post_image])
+            .attach(AdHoc::on_ignite("Liftoff Message", |r| {
+                Box::pin(async move {
+                    let client = initialize_variables().await;
+                    r.manage(client)
+                })
+            }))
 }
