@@ -18,16 +18,3 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url))
 }
-
-use self::models::{Item, NewItem};
-
-pub fn add_item<'a>(conn: &PgConnection, new_item: &NewItem) -> Item {
-                         // description: &'a Option<&str>
-    use schema::items;
-
-    diesel::insert_into(items::table)
-        .values(new_item)
-        .get_result(conn)
-        .expect("Error saving new post")
-        // TODO: use .update
-}
