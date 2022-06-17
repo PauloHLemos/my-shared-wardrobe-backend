@@ -13,7 +13,8 @@ pub fn like_item(id: i64) {
 
     diesel::update(items.find(id))
         .set(likes.eq(likes + 1))
-        .execute(&connection);
+        .execute(&connection)
+        .expect("error liking image");
 
 }
 
@@ -24,5 +25,6 @@ pub fn unlike_item(id: i64) {
 
     diesel::update(items.find(id))
         .set(likes.eq(likes - 1))
-        .execute(&connection);
+        .execute(&connection)
+        .expect("error unliking image");
 }
