@@ -7,12 +7,14 @@ pub mod bin;
 use rocket::data::ToByteUnit;
 use rocket::fairing::AdHoc;
 // use rocket::Request;
-use rocket::serde::json::Json;
+use rocket::serde::json::{Json, json};
+use rocket::{get, post, form::Form, routes};
 use rocket_auth::{Users, Error, Auth, Signup, Login};
 
 
 use drp02_backend::models::{Item, NewItem};
 use bin::show_items::get_items;
+use crate::bin::show_users::get_users;
 use bin::insert_item::{insert_item, insert_item_plain};
 use bin::delete_item::delete_item;
 use bin::likes::{like_item, unlike_item};
@@ -76,24 +78,6 @@ fn delete_item_req(item_id: i64) {
     delete_item(item_id);
 }
 
-// ------------------------------ user session ---------------------------------------
-
-// #[post("/signup", data="")] 
-// fn signup(form: Form, mut auth: Auth) {
-//    auth.signup(&form);
-// }
-
-// #[post("/login", data="")] 
-// fn login(form: Form, mut auth: Auth) {
-//    auth.login(&form);
-// }
-
-// #[get("/logout")] 
-// fn logout(mut auth: Auth) {
-//    auth.logout();
-// }
-
-// --------------------------------------------------------------------------------------
 #[get("/like_item/<item_id>")]
 fn like_item_req(item_id: i64) {
     like_item(item_id);
@@ -103,6 +87,34 @@ fn like_item_req(item_id: i64) {
 fn unlike_item_req(item_id: i64) {
     unlike_item(item_id);
 }
+
+// ------------------------------ user session ---------------------------------------
+
+#[post("/signup", data="<form>")]
+async fn signup(form: Form<Signup>, auth: Auth<'_>) -> Result<&'static str, Error> {
+    auth.signup(&form).await?;
+    auth.login(&form.into());
+    Ok("You signed up.")
+}
+
+#[post("/login", data="<form>")]
+async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
+    auth.login(&form).await?;
+    Ok("You're logged in.")
+}
+
+#[get("/logout")]
+fn logout(auth: Auth<'_>) {
+    auth.logout();
+}
+
+#[get("/see-user/<id>")]
+async fn see_user(id: i32, users: &State<Users>) -> String {
+    let user = users.get_by_id(id).await.unwrap();
+    format!("{}", json!(user))
+}
+
+// --------------------------------------------------------------------------------------
 
 pub async fn upload_object(
     client: &Client,
@@ -156,9 +168,19 @@ async fn initialize_variables() -> Client{
 
 
 #[launch]
-fn rocket() -> _ {
-    rocket::build().mount("/", routes![index,wardrobe,new_item_plain,wardrobe_plain,
-            new_item,delete_item_req,like_item_req,unlike_item_req,set_post_image])
+async fn rocket() -> _ {
+
+    let users = get_users();
+    rocket::build()
+            .mount("/", routes![index, 
+                                wardrobe, wardrobe_plain,
+                                new_item_plain, new_item,
+                                delete_item_req,
+                                like_item_req, unlike_item_req,
+                                set_post_image,
+                                signup, login, logout,
+                                see_user])
+            .manage(users)
             .attach(AdHoc::on_ignite("Liftoff Message", |r| {
                 Box::pin(async move {
                     let client = initialize_variables().await;
