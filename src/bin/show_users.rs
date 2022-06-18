@@ -21,3 +21,14 @@ pub fn show_users() {
         println!("{}", user.name);
     }
 }
+
+pub fn get_users() -> Vec<User> {
+    use drp02_backend::schema::users::dsl::*;
+
+    let connection = establish_connection();
+    let results = users
+        .load::<User>(&connection)
+        .expect("Error loading users");
+
+    return results;
+}
