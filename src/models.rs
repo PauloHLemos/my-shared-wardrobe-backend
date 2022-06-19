@@ -13,7 +13,19 @@ pub struct User {
     pub name: String,
 }
 
-#[derive(Insertable, Deserialize)]
+#[derive(Queryable, Serialize)]
+pub struct UserAuth {
+    pub uid: i64,
+    pub password_hash: String,
+}
+
+#[derive(FromForm, Deserialize)]
+pub struct NewUserData<'a> {
+    pub name: &'a str,
+    pub password: &'a str,
+}
+
+#[derive(Insertable, FromForm, Deserialize)]
 #[table_name="users"]
 pub struct NewUser<'a> {
     pub name: &'a str,
@@ -21,23 +33,9 @@ pub struct NewUser<'a> {
 
 #[derive(Insertable, Deserialize)]
 #[table_name="users_auth"]
-pub struct AuthInfo {
+pub struct NewUserAuth {
     pub uid: i64,
     pub password_hash: String,
-}
-
-#[derive(FromForm, Deserialize)]
-struct CreateInfo {
-    name: String,
-    // email: String,
-    // age: i32,
-    // password: String
-}
-
-#[derive(FromForm, Deserialize)]
-struct LoginInfo {
-    username: String,
-    password: String,
 }
 
 

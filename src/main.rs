@@ -12,9 +12,9 @@ use rocket::{get, post, form::Form, routes};
 use rocket_auth::{Users, Error, Auth, Signup, Login};
 
 
-use drp02_backend::models::{Item, NewItem};
+use drp02_backend::models::{Item, NewItem, NewUserData};
 use bin::items::{get_items, insert_item, insert_item_plain, delete_item};
-use crate::bin::users::get_users;
+use crate::bin::users::{get_users, create_user};
 use bin::likes::{like_item, unlike_item};
 use aws_sdk_s3::{Client, Error as AWSError};
 use rocket::Data;
@@ -88,29 +88,51 @@ fn unlike_item_req(item_id: i64) {
 
 // ------------------------------ user session ---------------------------------------
 
-#[post("/signup", data="<form>")]
-async fn signup(form: Form<Signup>, auth: Auth<'_>) -> Result<&'static str, Error> {
-    auth.signup(&form).await?;
-    auth.login(&form.into());
-    Ok("You signed up.")
+#[post("/signup", format="json", data="<data>")]
+fn signup(data: Json<NewUserData>) {
+    create_user(&data);
 }
 
-#[post("/login", data="<form>")]
-async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
-    auth.login(&form).await?;
-    Ok("You're logged in.")
-}
+// #[post("/login", data="<form>")]
+// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
+//     auth.login(&form).await?;
+//     Ok("You're logged in.")
+// }
 
-#[get("/logout")]
-fn logout(auth: Auth<'_>) {
-    auth.logout();
-}
+// #[get("/logout")]
+// fn logout(auth: Auth<'_>) {
+//     auth.logout();
+// }
 
-#[get("/see-user/<id>")]
-async fn see_user(id: i32, users: &State<Users>) -> String {
-    let user = users.get_by_id(id).await.unwrap();
-    format!("{}", json!(user))
-}
+// #[get("/see-user/<id>")]
+// async fn see_user(id: i32, users: &State<Users>) -> String {
+//     let user = users.get_by_id(id).await.unwrap();
+//     format!("{}", json!(user))
+// }
+
+// #[post("/signup", data="<form>")]
+// async fn signup(form: Form<Signup>, auth: Auth<'_>) -> Result<&'static str, Error> {
+//     auth.signup(&form).await?;
+//     auth.login(&form.into());
+//     Ok("You signed up.")
+// }
+
+// #[post("/login", data="<form>")]
+// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
+//     auth.login(&form).await?;
+//     Ok("You're logged in.")
+// }
+
+// #[get("/logout")]
+// fn logout(auth: Auth<'_>) {
+//     auth.logout();
+// }
+
+// #[get("/see-user/<id>")]
+// async fn see_user(id: i32, users: &State<Users>) -> String {
+//     let user = users.get_by_id(id).await.unwrap();
+//     format!("{}", json!(user))
+// }
 
 // --------------------------------------------------------------------------------------
 
@@ -176,8 +198,8 @@ async fn rocket() -> _ {
                                 delete_item_req,
                                 like_item_req, unlike_item_req,
                                 set_post_image,
-                                signup, login, logout,
-                                see_user])
+                                //signup, login, logout, see_user
+                                signup])
             .manage(users)
             .attach(AdHoc::on_ignite("Liftoff Message", |r| {
                 Box::pin(async move {
