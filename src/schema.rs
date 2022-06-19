@@ -19,9 +19,18 @@ table! {
     }
 }
 
+table! {
+    users_auth (uid) {
+        uid -> Int8,
+        password_hash -> Varchar,
+    }
+}
+
 joinable!(items -> users (uid));
+joinable!(users_auth -> users (uid));
 
 allow_tables_to_appear_in_same_query!(
     items,
     users,
+    users_auth,
 );

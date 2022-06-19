@@ -1,15 +1,49 @@
 use rocket::serde::{Serialize, Deserialize};
-use super::schema::items;
+use rocket::form::FromForm;
+use super::schema::{items, users, users_auth};
 
+// ------------------------------------ user ------------------------------------------
 
-#[derive(Queryable)]
+// reference: https://medium.com/@james_32022/authentication-in-rocket-feb4f7223254
+// used tutorial to implement user authentication
+
+#[derive(Queryable, Serialize)]
 pub struct User {
     pub uid: i64,
     pub name: String,
 }
 
+#[derive(Insertable, Deserialize)]
+#[table_name="users"]
+pub struct NewUser<'a> {
+    pub name: &'a str,
+}
+
+#[derive(Insertable, Deserialize)]
+#[table_name="users_auth"]
+pub struct AuthInfo {
+    pub uid: i64,
+    pub password_hash: String,
+}
+
+#[derive(FromForm, Deserialize)]
+struct CreateInfo {
+    name: String,
+    // email: String,
+    // age: i32,
+    // password: String
+}
+
+#[derive(FromForm, Deserialize)]
+struct LoginInfo {
+    username: String,
+    password: String,
+}
+
+
+// ------------------------------------ item ------------------------------------------
+
 #[derive(Queryable, Serialize, Debug)]
-#[serde( crate = "rocket::serde" )]
 pub struct Item {
     pub id: i64,
     pub uid: i64,
@@ -22,7 +56,6 @@ pub struct Item {
 }
 
 #[derive(Insertable, Deserialize)]
-#[serde( crate = "rocket::serde" )]
 #[table_name="items"]
 pub struct NewItem<'a> {
     // pub item_id: &'a i64,

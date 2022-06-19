@@ -787,6 +787,7 @@ dependencies = [
  "image",
  "rocket",
  "rocket_auth",
+ "serde",
  "tokio",
 ]
 

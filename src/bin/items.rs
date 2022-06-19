@@ -32,6 +32,27 @@ pub fn insert_item(new_item: &NewItem) -> Item {
     diesel::insert_into(items::table)
         .values(new_item)
         .get_result(&connection)
-        .expect("Error saving new post")
+        .expect("Error saving new item")
         // TODO: use .update
+}
+
+pub fn delete_item(id: i64) {
+    use drp02_backend::schema::items::dsl::*;
+
+    let connection = establish_connection();
+    diesel::delete(items.find(id))
+        .execute(&connection)
+        .expect("Error deleting item");
+}
+
+pub fn get_items() -> Vec<Item> {
+    use drp02_backend::schema::items::dsl::*;
+
+    let connection = establish_connection();
+    let results = items.filter(uid.eq(1))
+        .limit(100)
+        .load::<Item>(&connection)
+        .expect("Error loading items");
+
+    return results;
 }

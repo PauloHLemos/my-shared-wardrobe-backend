@@ -2,10 +2,23 @@ extern crate drp02_backend;
 extern crate diesel;
 
 use self::drp02_backend::*;
-use self::models::*;
+use drp02_backend::models::{User, NewUser};
 use self::diesel::prelude::*;
 
+
 pub fn main() {}
+
+pub fn insert_user(new_user: &NewUser) -> User {
+    let connection = establish_connection();
+
+    use schema::users;
+
+    diesel::insert_into(users::table)
+        .values(new_user)
+        .get_result(&connection)
+        .expect("Error saving new user")
+        // TODO: use .update
+}
 
 pub fn show_users() {
     use drp02_backend::schema::users::dsl::*;

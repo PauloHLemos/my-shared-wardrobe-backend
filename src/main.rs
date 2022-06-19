@@ -13,10 +13,8 @@ use rocket_auth::{Users, Error, Auth, Signup, Login};
 
 
 use drp02_backend::models::{Item, NewItem};
-use bin::show_items::get_items;
-use crate::bin::show_users::get_users;
-use bin::insert_item::{insert_item, insert_item_plain};
-use bin::delete_item::delete_item;
+use bin::items::{get_items, insert_item, insert_item_plain, delete_item};
+use crate::bin::users::get_users;
 use bin::likes::{like_item, unlike_item};
 use aws_sdk_s3::{Client, Error as AWSError};
 use rocket::Data;
@@ -169,7 +167,7 @@ async fn initialize_variables() -> Client{
 
 #[launch]
 async fn rocket() -> _ {
-
+    
     let users = get_users();
     rocket::build()
             .mount("/", routes![index, 
