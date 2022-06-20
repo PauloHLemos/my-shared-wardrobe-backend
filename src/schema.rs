@@ -16,6 +16,7 @@ table! {
     users (uid) {
         uid -> Int8,
         name -> Varchar,
+        email -> Varchar,
     }
 }
 

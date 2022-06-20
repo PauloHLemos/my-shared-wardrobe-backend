@@ -4,14 +4,12 @@ use super::schema::{items, users, users_auth};
 
 // ------------------------------------ user ------------------------------------------
 
-// reference: https://medium.com/@james_32022/authentication-in-rocket-feb4f7223254
-// used tutorial to implement user authentication
-
 // extract info from users table
 #[derive(Queryable, Serialize)]
 pub struct User {
     pub uid: i64,
     pub name: String,
+    pub email: String,
 }
 
 // extract info from users_auth table
@@ -25,6 +23,7 @@ pub struct UserAuth {
 #[derive(FromForm, Deserialize)]
 pub struct NewUserData<'a> {
     pub name: &'a str,
+    pub email: &'a str,
     pub password: &'a str,
 }
 
@@ -33,6 +32,7 @@ pub struct NewUserData<'a> {
 #[table_name="users"]
 pub struct NewUser<'a> {
     pub name: &'a str,
+    pub email: &'a str,
 }
 
 // data passed to users_auth table

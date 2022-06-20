@@ -4,18 +4,18 @@
 
 pub mod bin;
 
+use drp02_backend::models::{Item, NewItem, NewUserData};
+use bin::items::{get_items, insert_item, insert_item_plain, delete_item};
+use crate::bin::users::{get_users, create_user};
+use bin::likes::{like_item, unlike_item};
+
+
 use rocket::data::ToByteUnit;
 use rocket::fairing::AdHoc;
 // use rocket::Request;
 use rocket::serde::json::{Json, json};
 use rocket::{get, post, form::Form, routes};
 // use rocket_auth::{Users, Error, Auth, Signup, Login};
-
-
-use drp02_backend::models::{Item, NewItem, NewUserData};
-use bin::items::{get_items, insert_item, insert_item_plain, delete_item};
-use crate::bin::users::{get_users, create_user};
-use bin::likes::{like_item, unlike_item};
 use aws_sdk_s3::{Client, Error as AWSError};
 use rocket::Data;
 use rocket::response::status::NotFound;
@@ -92,6 +92,12 @@ fn unlike_item_req(item_id: i64) {
 fn signup(data: Json<NewUserData>) {
     create_user(&data);
 }
+
+// #[get("/users/my_data")]
+// fn login(db: State<String>, user: AuthenticatedUser)
+//   -> Json<Option<UserEntity>> {
+//     Json(fetch_user_by_id(&db, user.user_id))
+//   }
 
 // #[post("/login", format="json", data="<data>")]
 // fn signin(data: Json<LoginData>) {
