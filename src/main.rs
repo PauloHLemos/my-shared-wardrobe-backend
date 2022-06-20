@@ -9,7 +9,7 @@ use rocket::fairing::AdHoc;
 // use rocket::Request;
 use rocket::serde::json::{Json, json};
 use rocket::{get, post, form::Form, routes};
-use rocket_auth::{Users, Error, Auth, Signup, Login};
+// use rocket_auth::{Users, Error, Auth, Signup, Login};
 
 
 use drp02_backend::models::{Item, NewItem, NewUserData};
@@ -92,6 +92,11 @@ fn unlike_item_req(item_id: i64) {
 fn signup(data: Json<NewUserData>) {
     create_user(&data);
 }
+
+// #[post("/login", format="json", data="<data>")]
+// fn signin(data: Json<LoginData>) {
+//     create_user(&data);
+// }
 
 // #[post("/login", data="<form>")]
 // async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
