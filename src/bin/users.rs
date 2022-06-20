@@ -5,7 +5,8 @@ use self::drp02_backend::*;
 use drp02_backend::models::{User, NewUser, NewUserData, NewUserAuth};
 use self::diesel::prelude::*;
 
-// use crypto::sha3::Sha3;
+use crypto::digest::Digest;
+use crypto::sha3::Sha3;
 
 pub fn main() {}
 
@@ -79,7 +80,9 @@ pub fn create_user(data: &NewUserData) -> User {
 
 
 fn hash(password: &String) -> String {
-    password.to_string()
+    let mut hasher = Sha3::sha3_256();
+    hasher.input_str(password);
+    hasher.result_str()
 }
 
 // fn hash(password: &String) -> String {
