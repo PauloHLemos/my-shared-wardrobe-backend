@@ -221,23 +221,30 @@ fn login(login_info: Json<LoginData>, cookies: &CookieJar<'_>) -> String {
     }
 }
 
-// Just for testing
-#[get("/test_url")]
-fn test_url() -> String {
-    "raaaaa".to_string()
+#[post("/logout")]
+fn logout(cookies: &CookieJar<'_>) -> String {
+    cookies.remove_private(Cookie::named("uid"));
+    "Succesfully logged out".to_string()
 }
 
+/// Retrieve the user's ID, if any.
+#[get("/user_id")]
+fn user_id(cookies: &CookieJar<'_>) -> Option<String> {
+    cookies.get_private("uid")
+        .map(|crumb| format!("User ID: {}", crumb.value()))
+}
 
-// #[post("/login", data="<form>")]
-// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
-//     auth.login(&form).await?;
-//     Ok("You're logged in.")
-// }
-
-// #[get("/logout")]
-// fn logout(auth: Auth<'_>) {
-//     auth.logout();
-// }
+/// Retrieve the user's ID, if any.
+#[get("/test")]
+fn test(cookies: &CookieJar<'_>) -> String {
+    let cookie = cookies.get_private("uid")
+        .map(|crumb| format!("User ID: {}", crumb.value()));
+    match cookie {
+        Some(c) => {print!("{}", c);}
+        None => {print!("{}", "no cookie");}
+    };
+    "aaa".to_string()
+}
 
 // #[get("/see-user/<id>")]
 // async fn see_user(id: i32, users: &State<Users>) -> String {
@@ -273,5 +280,5 @@ fn test_url() -> String {
 
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, test_url]
+    routes![signup, login, logout, user_id, test]
 }
