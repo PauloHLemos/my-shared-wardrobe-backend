@@ -9,26 +9,26 @@ use rocket::{routes, get};
 pub fn main() {}
 
 
-#[get("/like/<item_id>")]
-fn like_item_req(item_id: i64) {
+#[get("/like/<_item_id>")]
+fn like_item_req(_item_id: i64) {
     use drp02_backend::schema::items::dsl::*;
 
     let connection = establish_connection();
 
-    diesel::update(items.find(item_id))
+    diesel::update(items.find(_item_id))
         .set(likes.eq(likes + 1))
         .execute(&connection)
         .expect("error liking image");
 
 }
 
-#[get("/unlike/<item_id>")]
-fn unlike_item_req(item_id: i64) {
+#[get("/unlike/<_item_id>")]
+fn unlike_item_req(_item_id: i64) {
     use drp02_backend::schema::items::dsl::*;
 
     let connection = establish_connection();
 
-    diesel::update(items.find(item_id))
+    diesel::update(items.find(_item_id))
         .set(likes.eq(likes - 1))
         .execute(&connection)
         .expect("error unliking image");
