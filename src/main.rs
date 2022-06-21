@@ -4,9 +4,12 @@
 
 pub mod bin;
 
+use drp02_backend::auth::AuthenticatedUser;
+use drp02_backend::establish_connection;
 use drp02_backend::models::{Item, NewItem};
-use bin::items::{get_items, insert_item, insert_item_plain, delete_item};
+use bin::items::{get_items, insert_item, insert_item_plain, delete_item,get_items_with_id};
 
+use drp02_backend::schema::items;
 use rocket::data::ToByteUnit;
 use rocket::fairing::AdHoc;
 use rocket::serde::json::{Json};
@@ -28,6 +31,15 @@ fn index() -> &'static str {
 #[get("/wardrobe")]
 fn wardrobe() -> Json<Vec<Item>> {
     get_items().into()
+}
+
+#[post("/my_wardrobe")]
+fn get_my_wardrobe(auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
+
+    let _connection = establish_connection();
+
+    let id: i64 = auth_user.uid;
+    get_items_with_id(id).into()
 }
 
 #[get("/wardrobe_plain")]
@@ -130,7 +142,8 @@ async fn rocket() -> _ {
                                 wardrobe, wardrobe_plain,
                                 new_item_plain, new_item,
                                 delete_item_req,
-                                set_post_image])
+                                set_post_image,
+                                get_my_wardrobe])
             .mount("/user", bin::users::routes())
             .mount("/likes", bin::likes::routes())
             .attach(AdHoc::on_ignite("Liftoff Message", |r| {

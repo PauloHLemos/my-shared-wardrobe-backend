@@ -58,3 +58,14 @@ pub fn get_items() -> Vec<Item> {
         .expect("Error loading items")
 
 }
+
+pub fn get_items_with_id(id: i64) -> Vec<Item> {
+    use drp02_backend::schema::items::dsl::*;
+
+    let connection = establish_connection();
+    items.filter(uid.eq(id))
+        .limit(100)
+        .load::<Item>(&connection)
+        .expect("Error loading items")
+
+}
