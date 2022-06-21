@@ -86,67 +86,6 @@ fn unlike_item_req(item_id: i64) {
     unlike_item(item_id);
 }
 
-// ------------------------------ user session ---------------------------------------
-
-#[post("/signup", format="json", data="<data>")]
-fn signup(data: Json<NewUserData>) {
-    create_user(&data);
-}
-
-// #[get("/users/my_data")]
-// fn login(db: State<String>, user: AuthenticatedUser)
-//   -> Json<Option<UserEntity>> {
-//     Json(fetch_user_by_id(&db, user.user_id))
-//   }
-
-// #[post("/login", format="json", data="<data>")]
-// fn signin(data: Json<LoginData>) {
-//     create_user(&data);
-// }
-
-// #[post("/login", data="<form>")]
-// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
-//     auth.login(&form).await?;
-//     Ok("You're logged in.")
-// }
-
-// #[get("/logout")]
-// fn logout(auth: Auth<'_>) {
-//     auth.logout();
-// }
-
-// #[get("/see-user/<id>")]
-// async fn see_user(id: i32, users: &State<Users>) -> String {
-//     let user = users.get_by_id(id).await.unwrap();
-//     format!("{}", json!(user))
-// }
-
-// #[post("/signup", data="<form>")]
-// async fn signup(form: Form<Signup>, auth: Auth<'_>) -> Result<&'static str, Error> {
-//     auth.signup(&form).await?;
-//     auth.login(&form.into());
-//     Ok("You signed up.")
-// }
-
-// #[post("/login", data="<form>")]
-// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
-//     auth.login(&form).await?;
-//     Ok("You're logged in.")
-// }
-
-// #[get("/logout")]
-// fn logout(auth: Auth<'_>) {
-//     auth.logout();
-// }
-
-// #[get("/see-user/<id>")]
-// async fn see_user(id: i32, users: &State<Users>) -> String {
-//     let user = users.get_by_id(id).await.unwrap();
-//     format!("{}", json!(user))
-// }
-
-// --------------------------------------------------------------------------------------
-
 pub async fn upload_object(
     client: &Client,
     data: Vec<u8>,
@@ -208,9 +147,8 @@ async fn rocket() -> _ {
                                 new_item_plain, new_item,
                                 delete_item_req,
                                 like_item_req, unlike_item_req,
-                                set_post_image,
-                                //signup, login, logout, see_user
-                                signup])
+                                set_post_image])
+            .mount("/user", bin::users::routes())
             .manage(users)
             .attach(AdHoc::on_ignite("Liftoff Message", |r| {
                 Box::pin(async move {

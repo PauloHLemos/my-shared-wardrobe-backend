@@ -8,8 +8,10 @@ use self::diesel::prelude::*;
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use rocket::http::Status;
-use rocket::Request;
+use rocket::serde::json::Json;
+use rocket::{Request, routes, post, get};
 use rocket::request::{FromRequest, Outcome};
+// use rocket::{get, post, form::Form, routes};
 
 // reference: https://medium.com/@james_32022/authentication-in-rocket-feb4f7223254
 // used tutorial to implement user authentication
@@ -189,4 +191,64 @@ impl<'r> FromRequest<'r> for AuthenticatedUser {
             _ => Outcome::Failure((Status::BadRequest, LoginError::InvalidData))
         }
     }
+}
+
+// ------------------------------ user session ---------------------------------------
+
+#[post("/signup", format="json", data="<data>")]
+fn signup(data: Json<NewUserData>) {
+    create_user(&data);
+}
+
+// #[post("/login", format="json", data="<data>")]
+// fn signin(data: Json<LoginData>) {
+//     create_user(&data);
+// }
+
+// #[post("/login", data="<form>")]
+// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
+//     auth.login(&form).await?;
+//     Ok("You're logged in.")
+// }
+
+// #[get("/logout")]
+// fn logout(auth: Auth<'_>) {
+//     auth.logout();
+// }
+
+// #[get("/see-user/<id>")]
+// async fn see_user(id: i32, users: &State<Users>) -> String {
+//     let user = users.get_by_id(id).await.unwrap();
+//     format!("{}", json!(user))
+// }
+
+// #[post("/signup", data="<form>")]
+// async fn signup(form: Form<Signup>, auth: Auth<'_>) -> Result<&'static str, Error> {
+//     auth.signup(&form).await?;
+//     auth.login(&form.into());
+//     Ok("You signed up.")
+// }
+
+// #[post("/login", data="<form>")]
+// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
+//     auth.login(&form).await?;
+//     Ok("You're logged in.")
+// }
+
+// #[get("/logout")]
+// fn logout(auth: Auth<'_>) {
+//     auth.logout();
+// }
+
+// #[get("/see-user/<id>")]
+// async fn see_user(id: i32, users: &State<Users>) -> String {
+//     let user = users.get_by_id(id).await.unwrap();
+//     format!("{}", json!(user))
+// }
+
+// --------------------------------------------------------------------------------------
+
+
+pub fn routes() -> Vec<rocket::Route> {
+    routes![signup, logout]
 }
