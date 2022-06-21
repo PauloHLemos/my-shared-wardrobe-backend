@@ -6,15 +6,11 @@ pub mod bin;
 
 use drp02_backend::models::{Item, NewItem};
 use bin::items::{get_items, insert_item, insert_item_plain, delete_item};
-use bin::likes::{like_item, unlike_item};
-
 
 use rocket::data::ToByteUnit;
 use rocket::fairing::AdHoc;
-// use rocket::Request;
 use rocket::serde::json::{Json};
 use rocket::{get, post, routes};
-// use rocket_auth::{Users, Error, Auth, Signup, Login};
 use aws_sdk_s3::{Client, Error as AWSError};
 use rocket::Data;
 use rocket::response::status::NotFound;
@@ -73,16 +69,6 @@ fn new_item_plain(type_: &str, name: &str) {
 #[get("/delete_item/<item_id>")]
 fn delete_item_req(item_id: i64) {
     delete_item(item_id);
-}
-
-#[get("/like_item/<item_id>")]
-fn like_item_req(item_id: i64) {
-    like_item(item_id);
-}
-
-#[get("/unlike_item/<item_id>")]
-fn unlike_item_req(item_id: i64) {
-    unlike_item(item_id);
 }
 
 pub async fn upload_object(
@@ -144,9 +130,9 @@ async fn rocket() -> _ {
                                 wardrobe, wardrobe_plain,
                                 new_item_plain, new_item,
                                 delete_item_req,
-                                like_item_req, unlike_item_req,
                                 set_post_image])
             .mount("/user", bin::users::routes())
+            .mount("/likes", bin::likes::routes())
             .attach(AdHoc::on_ignite("Liftoff Message", |r| {
                 Box::pin(async move {
                     let client = initialize_variables().await;
