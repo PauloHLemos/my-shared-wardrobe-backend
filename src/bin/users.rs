@@ -235,7 +235,12 @@ fn unfollow(unfollowing_uid: i64, auth_user: AuthenticatedUser) {
     }
 }
 
+#[get("/findfriends")]
+fn find_friends() -> Json<Vec<User>>{
+    get_users().into()
+}
+
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, logout, user_id, following, follow, unfollow]
+    routes![signup, login, logout, user_id, following, follow, unfollow,find_friends]
 }
