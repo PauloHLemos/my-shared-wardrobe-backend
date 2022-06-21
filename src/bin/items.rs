@@ -5,7 +5,7 @@ use self::drp02_backend::*;
 use self::diesel::prelude::*;
 
 use drp02_backend::auth::AuthenticatedUser;
-use drp02_backend::models::{Item, NewItem, NewItemUser};
+use drp02_backend::models::{Item, NewItem, NewItemUser, User};
 
 // use chrono::{NaiveDateTime, NaiveDate, NaiveTime};
 use rocket::serde::json::Json;
@@ -27,6 +27,29 @@ fn see_wardrobe(see_id: i64, auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
 
 #[get("/feed")]
 fn feed(auth_user: AuthenticatedUser) -> Json<Vec<Item>>{
+    use drp02_backend::schema::users::dsl::*;
+    let connection = establish_connection();
+
+    let following_ids: Vec<i64> = users.find(auth_user.uid)
+        .load::<User>(&connection)
+        .expect("Error loading user")
+        .remove(0)
+        .users_following;
+
+    let mut follower_wardrobes: Vec<Item> = Vec::new();
+
+    for following_id in following_ids {
+        let following_wardrobe: Vec<Item> = get_items_with_id(following_id);
+        for item in following_wardrobe{
+            follower_wardrobes.push(item);
+        } 
+    }
+    follower_wardrobes.into()
+}
+
+
+#[get("/discover")]
+fn discover(auth_user: AuthenticatedUser) -> Json<Vec<Item>>{
     let _id: i64 = auth_user.uid;
     use drp02_backend::schema::items::dsl::*;
 
@@ -92,7 +115,9 @@ fn get_items_with_id(id: i64) -> Vec<Item> {
     
 }
 
+
+
 pub fn routes() -> Vec<rocket::Route> {
     routes![wardrobe, feed, see_wardrobe,
-        insert_item, delete_item]
+        insert_item, delete_item, discover]
 }
