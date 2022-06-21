@@ -17,7 +17,7 @@ rust-crypto = "^0.2"
 
 [dependencies.rocket]
 version = "0.5.0-rc.2"
-features = ["json"]
+features = ["json", "secrets"]
 
 # [dependencies.rocket_auth]
 # version = "0.4.0"

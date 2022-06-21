@@ -4,17 +4,16 @@
 
 pub mod bin;
 
-use drp02_backend::models::{Item, NewItem, NewUserData};
+use drp02_backend::models::{Item, NewItem};
 use bin::items::{get_items, insert_item, insert_item_plain, delete_item};
-use crate::bin::users::{get_users, create_user};
 use bin::likes::{like_item, unlike_item};
 
 
 use rocket::data::ToByteUnit;
 use rocket::fairing::AdHoc;
 // use rocket::Request;
-use rocket::serde::json::{Json, json};
-use rocket::{get, post, form::Form, routes};
+use rocket::serde::json::{Json};
+use rocket::{get, post, routes};
 // use rocket_auth::{Users, Error, Auth, Signup, Login};
 use aws_sdk_s3::{Client, Error as AWSError};
 use rocket::Data;
@@ -140,7 +139,6 @@ async fn initialize_variables() -> Client{
 #[launch]
 async fn rocket() -> _ {
     
-    let users = get_users();
     rocket::build()
             .mount("/", routes![index, 
                                 wardrobe, wardrobe_plain,
@@ -149,7 +147,6 @@ async fn rocket() -> _ {
                                 like_item_req, unlike_item_req,
                                 set_post_image])
             .mount("/user", bin::users::routes())
-            .manage(users)
             .attach(AdHoc::on_ignite("Liftoff Message", |r| {
                 Box::pin(async move {
                     let client = initialize_variables().await;

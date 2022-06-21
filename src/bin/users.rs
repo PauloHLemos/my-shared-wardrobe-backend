@@ -7,11 +7,12 @@ use drp02_backend::models::{User, NewUser, NewUserData, NewUserAuth, UserAuth};
 use self::diesel::prelude::*;
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
-use rocket::http::Status;
+use rocket::http::{Status, Cookie, CookieJar};
 use rocket::serde::json::Json;
+use rocket::serde::Deserialize;
+use rocket::form::FromForm;
 use rocket::{Request, routes, post, get};
 use rocket::request::{FromRequest, Outcome};
-// use rocket::{get, post, form::Form, routes};
 
 // reference: https://medium.com/@james_32022/authentication-in-rocket-feb4f7223254
 // used tutorial to implement user authentication
@@ -19,6 +20,13 @@ use rocket::request::{FromRequest, Outcome};
 // struct representing a valid user
 struct AuthenticatedUser {
     uid: i64,
+}
+
+// data received to login user
+#[derive(FromForm, Deserialize)]
+struct LoginData<'a> {
+    pub email: &'a str,
+    pub password: &'a str,
 }
 
 #[derive(Debug)]
@@ -125,38 +133,6 @@ pub fn get_user_auth_by_email(email: String) -> Option<UserAuth> {
     }
 }
 
-pub fn create_user(data: &NewUserData) -> UserAuth {
-    
-    let new_user: NewUser = NewUser {
-        name: data.name.clone(),
-        email: data.email.clone()
-    };
-
-    let connection = establish_connection();
-
-    use schema::{users, users_auth};
-
-    // insert new user meta data
-    let user_meta: User = diesel::insert_into(users::table)
-        .values(new_user)
-        .get_result(&connection)
-        .expect("Error creating new user");
-
-    let password_hash = hash(&String::from(data.password));
-    let auth_info: NewUserAuth = NewUserAuth {
-        uid: user_meta.uid,
-        password_hash: password_hash
-    };
-
-    // insert new user authentication data
-    diesel::insert_into(users_auth::table)
-        .values(auth_info)
-        .get_result(&connection)
-        .expect("Error inserting user authentication data")
-    
-}
-
-
 fn hash(password: &String) -> String {
     let mut hasher = Sha3::sha3_256();
     hasher.input_str(password);
@@ -195,15 +171,62 @@ impl<'r> FromRequest<'r> for AuthenticatedUser {
 
 // ------------------------------ user session ---------------------------------------
 
-#[post("/signup", format="json", data="<data>")]
-fn signup(data: Json<NewUserData>) {
-    create_user(&data);
+// TODO: potentially introduce rturn type Json<Option<i64>>
+#[post("/signup", format="json", data="<signup_info>")]
+fn signup(signup_info: Json<NewUserData>) {    
+    let new_user: NewUser = NewUser {
+        name: signup_info.name.clone(),
+        email: signup_info.email.clone()
+    };
+
+    let connection = establish_connection();
+
+    use schema::{users, users_auth};
+
+    // insert new user meta data
+    let user_meta: User = diesel::insert_into(users::table)
+        .values(new_user)
+        .get_result(&connection)
+        .expect("Error creating new user");
+
+    let password_hash = hash(&String::from(signup_info.password));
+    let auth_info: NewUserAuth = NewUserAuth {
+        uid: user_meta.uid,
+        password_hash: password_hash
+    };
+
+    // insert new user authentication data
+    let _user_auth : UserAuth = diesel::insert_into(users_auth::table)
+        .values(auth_info)
+        .get_result(&connection)
+        .expect("Error inserting user authentication data");
+    
 }
 
-// #[post("/login", format="json", data="<data>")]
-// fn signin(data: Json<LoginData>) {
-//     create_user(&data);
-// }
+// TODO: potentially introduce rturn type Json<Option<i64>>
+#[post("/login", format="json", data="<login_info>")]
+fn login(login_info: Json<LoginData>, cookies: &CookieJar<'_>) -> String {
+    let some_user_auth = get_user_auth_by_email(login_info.email.to_string());
+    match some_user_auth {
+        Some(auth_info) => {
+            let hash = hash(&String::from(login_info.password));
+            if hash == auth_info.password_hash {
+                cookies.add_private(Cookie::new("uid", auth_info.uid.to_string()));
+                "Authentication Succeeded".to_string()
+            } else {
+                "Invalid email or password.".to_string()
+            }
+        }
+        None => "Invalid email or password".to_string()
+    }
+}
+
+// Just for testing
+#[get("/test_url")]
+fn test_url() -> String {
+    "raaaaa".to_string()
+}
+
 
 // #[post("/login", data="<form>")]
 // async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
@@ -250,5 +273,5 @@ fn signup(data: Json<NewUserData>) {
 
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, logout]
+    routes![signup, login, test_url]
 }
