@@ -235,26 +235,9 @@ fn user_id(cookies: &CookieJar<'_>) -> Option<String> {
         .map(|crumb| format!("User ID: {}", crumb.value()))
 }
 
-#[get("/cookies/<uid>")]
-fn fetch_special(uid: i64, cookies: &CookieJar<'_>) -> Json<Option<User>> {
-  // Run matching on cookies and return info
-    let logged_in_user = cookies.get_private("uid");
-    match logged_in_user {
-        Some(c) => {
-            let logged_in_uid = c.value().parse::<i64>().unwrap();
-            if logged_in_uid == uid {
-                Json(get_user_by_id(uid))
-            } else {
-                Json(None)
-            }
-        },
-        None => Json(None)
-    }
-}
-
 // --------------------------------------------------------------------------------------
 
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, logout, user_id, fetch_special]
+    routes![signup, login, logout, user_id]
 }
