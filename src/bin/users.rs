@@ -173,7 +173,7 @@ impl<'r> FromRequest<'r> for AuthenticatedUser {
 
 // TODO: potentially introduce rturn type Json<Option<i64>>
 #[post("/signup", format="json", data="<signup_info>")]
-fn signup(signup_info: Json<NewUserData>) {    
+fn signup(signup_info: Json<NewUserData>, cookies: &CookieJar<'_>) {    
     let new_user: NewUser = NewUser {
         name: signup_info.name.clone(),
         email: signup_info.email.clone()
@@ -200,7 +200,8 @@ fn signup(signup_info: Json<NewUserData>) {
         .values(auth_info)
         .get_result(&connection)
         .expect("Error inserting user authentication data");
-    
+
+    cookies.add_private(Cookie::new("uid", user_meta.uid.to_string()));
 }
 
 // TODO: potentially introduce rturn type Json<Option<i64>>
@@ -234,51 +235,26 @@ fn user_id(cookies: &CookieJar<'_>) -> Option<String> {
         .map(|crumb| format!("User ID: {}", crumb.value()))
 }
 
-/// Retrieve the user's ID, if any.
-#[get("/test")]
-fn test(cookies: &CookieJar<'_>) -> String {
-    let cookie = cookies.get_private("uid")
-        .map(|crumb| format!("User ID: {}", crumb.value()));
-    match cookie {
-        Some(c) => {print!("{}", c);}
-        None => {print!("{}", "no cookie");}
-    };
-    "aaa".to_string()
+#[get("/cookies/<uid>")]
+fn fetch_special(uid: i64, cookies: &CookieJar<'_>) -> Json<Option<User>> {
+  // Run matching on cookies and return info
+    let logged_in_user = cookies.get_private("uid");
+    match logged_in_user {
+        Some(c) => {
+            let logged_in_uid = c.value().parse::<i64>().unwrap();
+            if logged_in_uid == uid {
+                Json(get_user_by_id(uid))
+            } else {
+                Json(None)
+            }
+        },
+        None => Json(None)
+    }
 }
-
-// #[get("/see-user/<id>")]
-// async fn see_user(id: i32, users: &State<Users>) -> String {
-//     let user = users.get_by_id(id).await.unwrap();
-//     format!("{}", json!(user))
-// }
-
-// #[post("/signup", data="<form>")]
-// async fn signup(form: Form<Signup>, auth: Auth<'_>) -> Result<&'static str, Error> {
-//     auth.signup(&form).await?;
-//     auth.login(&form.into());
-//     Ok("You signed up.")
-// }
-
-// #[post("/login", data="<form>")]
-// async fn login(form: rocket::serde::json::Json<Login>, auth: Auth<'_>) -> Result<&'static str, Error> {
-//     auth.login(&form).await?;
-//     Ok("You're logged in.")
-// }
-
-// #[get("/logout")]
-// fn logout(auth: Auth<'_>) {
-//     auth.logout();
-// }
-
-// #[get("/see-user/<id>")]
-// async fn see_user(id: i32, users: &State<Users>) -> String {
-//     let user = users.get_by_id(id).await.unwrap();
-//     format!("{}", json!(user))
-// }
 
 // --------------------------------------------------------------------------------------
 
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, logout, user_id, test]
+    routes![signup, login, logout, user_id, fetch_special]
 }
