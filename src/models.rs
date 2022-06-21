@@ -1,5 +1,6 @@
 use rocket::serde::{Serialize, Deserialize};
 use rocket::form::FromForm;
+use chrono::NaiveDateTime;
 use super::schema::{items, users, users_auth};
 
 // ------------------------------------ user ------------------------------------------
@@ -57,6 +58,7 @@ pub struct Item {
     pub tags: Option<Vec<String>>,
     pub pics: Vec<String>,
     pub likes: i64,
+    pub creation_time: NaiveDateTime,
 }
 
 // data passed to create new item in items table
@@ -70,4 +72,5 @@ pub struct NewItem<'a> {
     pub tags: Option<Vec<&'a str>>,
     pub pics: Vec<&'a str>,
     pub likes: i64,
+    pub creation_time: NaiveDateTime,
 }

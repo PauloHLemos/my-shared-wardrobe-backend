@@ -5,6 +5,8 @@ use self::drp02_backend::*;
 use drp02_backend::models::{Item, NewItem};
 use self::diesel::prelude::*;
 
+use chrono::{NaiveDateTime, NaiveDate, NaiveTime};
+
 
 pub fn main() {}
 
@@ -19,6 +21,7 @@ pub fn insert_item_plain(type_: &str, name: &str) {
         tags: None,
         pics: vec!["dummy_url.com"],
         likes: 0,
+        creation_time: NaiveDateTime::new(NaiveDate::from_ymd(2022, 6, 20), NaiveTime::from_hms_milli(00, 00, 00, 000)),
     };
 
     insert_item(&new_item);

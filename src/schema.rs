@@ -9,6 +9,7 @@ table! {
         tags -> Nullable<Array<Text>>,
         pics -> Array<Text>,
         likes -> Int8,
+        creation_time -> Timestamp,
     }
 }
 
