@@ -176,7 +176,8 @@ impl<'r> FromRequest<'r> for AuthenticatedUser {
 fn signup(signup_info: Json<NewUserData>, cookies: &CookieJar<'_>) {    
     let new_user: NewUser = NewUser {
         name: signup_info.name.clone(),
-        email: signup_info.email.clone()
+        email: signup_info.email.clone(),
+        items_liked: Vec::new(),
     };
 
     let connection = establish_connection();

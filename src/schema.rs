@@ -18,6 +18,7 @@ table! {
         uid -> Int8,
         name -> Varchar,
         email -> Varchar,
+        items_liked -> Array<Int8>,
     }
 }
 

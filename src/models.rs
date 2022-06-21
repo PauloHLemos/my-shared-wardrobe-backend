@@ -11,6 +11,7 @@ pub struct User {
     pub uid: i64,
     pub name: String,
     pub email: String,
+    pub items_liked: Vec<i64>,
 }
 
 // extract info from users_auth table
@@ -34,6 +35,7 @@ pub struct NewUserData<'a> {
 pub struct NewUser<'a> {
     pub name: &'a str,
     pub email: &'a str,
+    pub items_liked: Vec<i64>,
 }
 
 // data passed to users_auth table
