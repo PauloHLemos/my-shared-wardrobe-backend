@@ -181,6 +181,12 @@ fn user_id(cookies: &CookieJar<'_>) -> Option<String> {
         .map(|crumb| format!("User ID: {}", crumb.value()))
 }
 
+#[get("/get_user")]
+fn get_user_user( auth_user: AuthenticatedUser) -> Json<Option<User>>{
+    let id = auth_user.uid;
+    get_user_by_id(id).into()
+}
+
 // --------------------------------------------------------------------------------------
 
 // TODO: cascade following users array, so that if user is deleted gets automatically 
@@ -243,5 +249,5 @@ fn find_friends() -> Json<Vec<User>>{
 
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, logout, user_id, following, follow, unfollow,find_friends]
+    routes![signup, login, logout, user_id, following, follow, unfollow,find_friends,get_user_user]
 }
