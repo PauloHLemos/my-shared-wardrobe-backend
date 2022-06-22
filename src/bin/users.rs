@@ -187,6 +187,11 @@ fn get_user_user( auth_user: AuthenticatedUser) -> Json<Option<User>>{
     get_user_by_id(id).into()
 }
 
+#[get("/get_user_by_id/<id>")]
+fn get_other_user_by_id( id: i64, auth_user: AuthenticatedUser) -> Json<Option<User>>{
+    get_user_by_id(id).into()
+}
+
 // --------------------------------------------------------------------------------------
 
 // TODO: cascade following users array, so that if user is deleted gets automatically 
@@ -249,5 +254,5 @@ fn find_friends() -> Json<Vec<User>>{
 
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, logout, user_id, following, follow, unfollow,find_friends,get_user_user]
+    routes![signup, login, logout, user_id, following, follow, unfollow,find_friends,get_user_user,get_other_user_by_id]
 }
