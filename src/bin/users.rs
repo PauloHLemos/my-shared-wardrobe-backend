@@ -122,6 +122,7 @@ fn signup(signup_info: Json<NewUserData>, cookies: &CookieJar<'_>) {
         name: signup_info.name.clone(),
         email: signup_info.email.clone(),
         items_liked: Vec::new(),
+        users_following: Vec::new(),
     };
 
     let connection = establish_connection();

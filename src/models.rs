@@ -37,6 +37,7 @@ pub struct NewUser<'a> {
     pub name: &'a str,
     pub email: &'a str,
     pub items_liked: Vec<i64>,
+    pub users_following: Vec<i64>,
 }
 
 // data passed to users_auth table
