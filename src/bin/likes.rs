@@ -97,6 +97,28 @@ fn get_liked_items(auth_user: AuthenticatedUser) -> Json<Vec<Item>> {
         .into()
 }
 
+#[get("/liked_items/<id>")]
+fn get_liked_items_with_id(id : i64, auth_user: AuthenticatedUser) -> Json<Vec<Item>> {
+    use drp02_backend::schema::users::dsl::*;
+
+    let connection = establish_connection();
+
+    ///let id: i64 = auth_user.uid;
+    let liked_ids = users.find(id)
+        .load::<User>(&connection)
+        .expect("Error loading user")
+        .remove(0)
+        .items_liked;
+
+    use drp02_backend::schema::items::dsl::*;
+
+    items.filter(item_id.eq(any(liked_ids)))
+        .load::<Item>(&connection)
+        .expect("Error loading liked items")
+        .into()
+}
+
+
 pub fn routes() -> Vec<rocket::Route> {
-    routes![like, unlike, get_liked_items]
+    routes![like, unlike, get_liked_items,get_liked_items_with_id]
 }
