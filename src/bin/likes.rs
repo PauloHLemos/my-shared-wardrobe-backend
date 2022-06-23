@@ -9,13 +9,13 @@ use drp02_backend::models::{User, Item};
 
 use diesel::sql_query;
 use diesel::dsl::any;
-use rocket::{routes, get};
+use rocket::{routes, get, post};
 use rocket::serde::json::Json;
 
 pub fn main() {}
 
 
-#[get("/like/<_item_id>")]
+#[post("/like/<_item_id>")]
 fn like(_item_id: i64, auth_user: AuthenticatedUser) {
     use drp02_backend::schema::users::dsl::*;
 
@@ -48,7 +48,7 @@ fn like(_item_id: i64, auth_user: AuthenticatedUser) {
     }
 }
 
-#[get("/unlike/<_item_id>")]
+#[post("/unlike/<_item_id>")]
 fn unlike(_item_id: i64, auth_user: AuthenticatedUser) {
     use drp02_backend::schema::users::dsl::*;
 
