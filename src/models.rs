@@ -12,6 +12,7 @@ pub struct User {
     pub name: String,
     pub email: String,
     pub items_liked: Vec<i64>,
+    pub users_following: Vec<i64>,
 }
 
 // extract info from users_auth table

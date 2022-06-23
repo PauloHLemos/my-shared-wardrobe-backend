@@ -3,7 +3,9 @@ extern crate diesel;
 
 use self::drp02_backend::*;
 use drp02_backend::models::{User, NewUser, NewUserData, NewUserAuth, UserAuth};
+use drp02_backend::auth::AuthenticatedUser;
 
+use diesel::sql_query;
 use self::diesel::prelude::*;
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
@@ -180,7 +182,60 @@ fn user_id(cookies: &CookieJar<'_>) -> Option<String> {
 
 // --------------------------------------------------------------------------------------
 
+// TODO: cascade following users array, so that if user is deleted gets automatically 
+// deleted from this array
+#[get("/following")]
+fn following(auth_user: AuthenticatedUser) -> Json<Vec<User>> {
+    use drp02_backend::schema::users::dsl::*;
+    let connection = establish_connection();
+
+    let following_ids: Vec<i64> = users.find(auth_user.uid)
+        .load::<User>(&connection)
+        .expect("Error loading user")
+        .remove(0)
+        .users_following;
+
+    let mut following_users: Vec<User> = Vec::new();
+
+    for following_id in following_ids {
+        let following_user: User = users.find(following_id)
+            .load::<User>(&connection)
+            .expect("Error loading following user")
+            .remove(0);
+        following_users.push(following_user);
+    }
+    return following_users.into()
+}
+
+#[post("/follow/<following_uid>")]
+fn follow(following_uid: i64, auth_user: AuthenticatedUser) {
+    // user cant follow themselves
+    // TODO: check that uid is valid
+    if !(following_uid == auth_user.uid) {
+        let connection = establish_connection();
+
+        let uid = auth_user.uid;
+        sql_query(format!("UPDATE users SET users_following = array_append(users_following,'{following_uid}') WHERE uid = {uid}"))
+            .execute(&connection)
+            .expect("error adding item to list of items_liked");
+    }
+}
+
+#[post("/unfollow/<unfollowing_uid>")]
+fn unfollow(unfollowing_uid: i64, auth_user: AuthenticatedUser) {
+    // user cant follow themselves
+    // TODO: check that uid is valid
+    if !(unfollowing_uid == auth_user.uid) {
+        let connection = establish_connection();
+
+        let uid = auth_user.uid;
+        sql_query(format!("UPDATE users SET users_following = array_remove(users_following,'{unfollowing_uid}') WHERE uid = {uid}"))
+            .execute(&connection)
+            .expect("error adding item to list of items_liked");
+    }
+}
+
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, logout, user_id]
+    routes![signup, login, logout, user_id, following, follow, unfollow]
 }

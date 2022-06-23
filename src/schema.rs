@@ -19,6 +19,7 @@ table! {
         name -> Varchar,
         email -> Varchar,
         items_liked -> Array<Int8>,
+        users_following -> Array<Int8>,
     }
 }
 
