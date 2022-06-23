@@ -5,10 +5,12 @@ use self::drp02_backend::*;
 use self::diesel::prelude::*;
 
 use drp02_backend::auth::AuthenticatedUser;
-use drp02_backend::models::User;
+use drp02_backend::models::{User, Item};
 
 use diesel::sql_query;
+use diesel::dsl::any;
 use rocket::{routes, get};
+use rocket::serde::json::Json;
 
 pub fn main() {}
 
@@ -43,10 +45,7 @@ fn like(_item_id: i64, auth_user: AuthenticatedUser) {
         sql_query(format!("UPDATE users SET items_liked = array_append(items_liked,'{_item_id}') WHERE uid = {id}"))
             .execute(&connection)
             .expect("error adding item to list of items_liked");
-        
-        
     }
-
 }
 
 #[get("/unlike/<_item_id>")]
@@ -73,11 +72,31 @@ fn unlike(_item_id: i64, auth_user: AuthenticatedUser) {
 
         sql_query(format!("UPDATE users SET items_liked = array_remove(items_liked,'{_item_id}') WHERE uid = {id}"))
             .execute(&connection)
-            .expect("error removing item from list of items_liked");
-        
+            .expect("error removing item from list of items_liked"); 
     }
 }
 
+#[get("/liked_items")]
+fn get_liked_items(auth_user: AuthenticatedUser) -> Json<Vec<Item>> {
+    use drp02_backend::schema::users::dsl::*;
+
+    let connection = establish_connection();
+
+    let id: i64 = auth_user.uid;
+    let liked_ids = users.find(id)
+        .load::<User>(&connection)
+        .expect("Error loading user")
+        .remove(0)
+        .items_liked;
+
+    use drp02_backend::schema::items::dsl::*;
+
+    items.filter(item_id.eq(any(liked_ids)))
+        .load::<Item>(&connection)
+        .expect("Error loading liked items")
+        .into()
+}
+
 pub fn routes() -> Vec<rocket::Route> {
-    routes![like, unlike]
+    routes![like, unlike, get_liked_items]
 }

@@ -52,10 +52,9 @@ pub fn get_items() -> Vec<Item> {
     use drp02_backend::schema::items::dsl::*;
 
     let connection = establish_connection();
-    let results = items.filter(uid.eq(1))
+    items.filter(uid.eq(1))
         .limit(100)
         .load::<Item>(&connection)
-        .expect("Error loading items");
+        .expect("Error loading items")
 
-    return results;
 }
