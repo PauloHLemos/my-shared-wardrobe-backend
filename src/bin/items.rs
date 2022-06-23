@@ -5,7 +5,7 @@ use self::drp02_backend::*;
 use self::diesel::prelude::*;
 
 use drp02_backend::auth::AuthenticatedUser;
-use drp02_backend::models::{Item, NewItem};
+use drp02_backend::models::{Item, NewItem, NewItemUser};
 
 // use chrono::{NaiveDateTime, NaiveDate, NaiveTime};
 use rocket::serde::json::Json;
@@ -36,18 +36,26 @@ fn feed(auth_user: AuthenticatedUser) -> Json<Vec<Item>>{
 
 // ------------------------------------------------------------------------------------
 
-#[post("/insert", format = "json", data = "<new_item>")]
-fn new_item(new_item: Json<NewItem>, auth_user: AuthenticatedUser) {
-    insert_item(&new_item);
+#[post("/insert", format = "json", data = "<item>")]
+fn insert_item(item: Json<NewItem>, auth_user: AuthenticatedUser) {
+    let new_item_user = NewItemUser {uid: auth_user.uid, 
+                                    type_: item.type_, 
+                                    name: item.name, 
+                                    description: item.description, 
+                                    tags: item.tags.clone(), 
+                                    pics: item.pics.clone(), 
+                                    likes: item.likes, 
+                                    creation_time: item.creation_time };
+    new_item(&new_item_user);
 }
 
-fn insert_item(new_item: &NewItem) {
+fn new_item(item: &NewItemUser) {
     let connection = establish_connection();
 
     use schema::items;
 
     let _item: Item = diesel::insert_into(items::table)
-        .values(new_item)
+        .values(item)
         .get_result(&connection)
         .expect("Error saving new item");
         // TODO: use .update
@@ -79,5 +87,5 @@ fn get_items_with_id(id: i64) -> Vec<Item> {
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![wardrobe, feed,
-        new_item, delete_item]
+        insert_item, delete_item]
 }

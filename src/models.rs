@@ -64,9 +64,21 @@ pub struct Item {
 }
 
 // data passed to create new item in items table
+#[derive(Deserialize)]
+pub struct NewItem<'a> {
+    pub type_: &'a str,
+    pub name: &'a str,
+    pub description: Option<&'a str>,
+    pub tags: Option<Vec<&'a str>>,
+    pub pics: Vec<&'a str>,
+    pub likes: i64,
+    pub creation_time: NaiveDateTime,
+}
+
+// data passed to create new item in items table
 #[derive(Insertable, Deserialize)]
 #[table_name="items"]
-pub struct NewItem<'a> {
+pub struct NewItemUser<'a> {
     pub uid: i64,
     pub type_: &'a str,
     pub name: &'a str,
