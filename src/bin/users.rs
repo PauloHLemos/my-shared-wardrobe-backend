@@ -11,9 +11,7 @@ use rocket::http::{Cookie, CookieJar};
 use rocket::serde::json::Json;
 use rocket::serde::Deserialize;
 use rocket::form::FromForm;
-use rocket::outcome::IntoOutcome;
-use rocket::{Request, routes, post, get};
-use rocket::request::{FromRequest, Outcome};
+use rocket::{routes, post, get};
 
 // reference: https://medium.com/@james_32022/authentication-in-rocket-feb4f7223254
 // used tutorial to implement user authentication
@@ -22,9 +20,6 @@ use rocket::request::{FromRequest, Outcome};
 // struct AuthenticatedUser {
 //     uid: i64,
 // }
-
-#[derive(Debug)]
-struct AuthenticatedUser(i64);
 
 // data received to login user
 #[derive(FromForm, Deserialize)]
@@ -41,33 +36,6 @@ struct LoginData<'a> {
 // }
 
 pub fn main() {}
-
-pub fn insert_user(new_user: &NewUser) -> User {
-    let connection = establish_connection();
-
-    use schema::users;
-
-    diesel::insert_into(users::table)
-        .values(new_user)
-        .get_result(&connection)
-        .expect("Error saving new user")
-        // TODO: use .update
-}
-
-pub fn show_users() {
-    use drp02_backend::schema::users::dsl::*;
-
-    let connection = establish_connection();
-    let results = users
-        .limit(5)
-        .load::<User>(&connection)
-        .expect("Error loading users");
-
-    println!("Displaying {} users", results.len());
-    for user in results {
-        println!("{}", user.name);
-    }
-}
 
 pub fn get_users() -> Vec<User> {
     use drp02_backend::schema::users::dsl::*;
@@ -141,49 +109,6 @@ fn hash(password: &String) -> String {
     let mut hasher = Sha3::sha3_256();
     hasher.input_str(password);
     hasher.result_str()
-}
-
-// #[rocket::async_trait]
-// impl<'r> FromRequest<'r> for AuthenticatedUser {
-//     type Error = LoginError;
-
-//     async fn from_request(request: &'r Request<'_>) -> Outcome<AuthenticatedUser, LoginError> {
-//         let email = request.headers().get_one("email");
-//         let password = request.headers().get_one("password");
-
-//         match (email, password) {
-//             (Some(e), Some(p)) => {
-//                 let user_auth = get_user_auth_by_email(e.to_string());
-
-//                 match user_auth {
-//                     Some(auth_info) => {
-//                         let hash = hash(&String::from(p));
-//                         if hash == auth_info.password_hash {
-//                             Outcome::Success(AuthenticatedUser{uid: auth_info.uid})
-//                         }
-//                         else {
-//                             Outcome::Failure((Status::Forbidden, LoginError::WrongPassword))
-//                         }
-//                     }
-//                     None => Outcome::Failure((Status::NotFound, LoginError::UsernameDoesNotExist))
-//                 }
-//             },
-//             _ => Outcome::Failure((Status::BadRequest, LoginError::InvalidData))
-//         }
-//     }
-// }
-
-#[rocket::async_trait]
-impl<'r> FromRequest<'r> for AuthenticatedUser {
-    type Error = std::convert::Infallible;
-
-    async fn from_request(request: &'r Request<'_>) -> Outcome<AuthenticatedUser, Self::Error> {
-        request.cookies()
-            .get_private("user_id")
-            .and_then(|cookie| cookie.value().parse().ok())
-            .map(AuthenticatedUser)
-            .or_forward(())
-    }
 }
 
 // ------------------------------ user session ---------------------------------------

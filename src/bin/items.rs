@@ -2,44 +2,60 @@ extern crate drp02_backend;
 extern crate diesel;
 
 use self::drp02_backend::*;
-use drp02_backend::models::{Item, NewItem};
 use self::diesel::prelude::*;
 
-use chrono::{NaiveDateTime, NaiveDate, NaiveTime};
+use drp02_backend::auth::AuthenticatedUser;
+use drp02_backend::models::{Item, NewItem};
+
+// use chrono::{NaiveDateTime, NaiveDate, NaiveTime};
+use rocket::serde::json::Json;
+use rocket::{get, post, routes};
 
 
 pub fn main() {}
 
-pub fn insert_item_plain(type_: &str, name: &str) {
-    // TODO: user id currently hardcoded to 1
+#[get("/wardrobe")]
+fn wardrobe(auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
+    let _id: i64 = auth_user.uid;
+    get_items_with_id(_id).into()
+}
 
-    let new_item = NewItem {
-        uid: 1,
-        type_: type_,
-        name: name,
-        description: Some("sample description"), // description
-        tags: None,
-        pics: vec!["dummy_url.com"],
-        likes: 0,
-        creation_time: NaiveDateTime::new(NaiveDate::from_ymd(2022, 6, 20), NaiveTime::from_hms_milli(00, 00, 00, 000)),
-    };
+#[get("/feed")]
+fn feed(auth_user: AuthenticatedUser) -> Json<Vec<Item>>{
+    let _id: i64 = auth_user.uid;
+    use drp02_backend::schema::items::dsl::*;
 
+    let connection = establish_connection();
+    
+    items.filter(uid.ne(_id))
+        .limit(100)
+        .load::<Item>(&connection)
+        .expect("Error loading items")
+        .into()    
+}
+
+// ------------------------------------------------------------------------------------
+
+#[post("/insert", format = "json", data = "<new_item>")]
+fn new_item(new_item: Json<NewItem>, auth_user: AuthenticatedUser) {
     insert_item(&new_item);
 }
 
-pub fn insert_item(new_item: &NewItem) -> Item {
+fn insert_item(new_item: &NewItem) {
     let connection = establish_connection();
 
     use schema::items;
 
-    diesel::insert_into(items::table)
+    let _item: Item = diesel::insert_into(items::table)
         .values(new_item)
         .get_result(&connection)
-        .expect("Error saving new item")
+        .expect("Error saving new item");
         // TODO: use .update
 }
 
-pub fn delete_item(id: i64) {
+#[get("/delete/<id>")]
+fn delete_item(id: i64) {
+
     use drp02_backend::schema::items::dsl::*;
 
     let connection = establish_connection();
@@ -48,18 +64,9 @@ pub fn delete_item(id: i64) {
         .expect("Error deleting item");
 }
 
-pub fn get_items() -> Vec<Item> {
-    use drp02_backend::schema::items::dsl::*;
+// ---------------------------------------------------------------------------
 
-    let connection = establish_connection();
-    items.filter(uid.eq(1))
-        .limit(100)
-        .load::<Item>(&connection)
-        .expect("Error loading items")
-
-}
-
-pub fn get_items_with_id(id: i64) -> Vec<Item> {
+fn get_items_with_id(id: i64) -> Vec<Item> {
     use drp02_backend::schema::items::dsl::*;
 
     let connection = establish_connection();
@@ -70,14 +77,7 @@ pub fn get_items_with_id(id: i64) -> Vec<Item> {
     
 }
 
-pub fn get_my_feed(id: i64) -> Vec<Item> {
-    use drp02_backend::schema::items::dsl::*;
-
-    let connection = establish_connection();
-    
-    items.filter(uid.ne(id))
-        .limit(100)
-        .load::<Item>(&connection)
-        .expect("Error loading items")
-    
+pub fn routes() -> Vec<rocket::Route> {
+    routes![wardrobe, feed,
+        new_item, delete_item]
 }

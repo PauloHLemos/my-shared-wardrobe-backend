@@ -4,13 +4,8 @@
 
 pub mod bin;
 
-use drp02_backend::auth::{AuthenticatedUser};
-use drp02_backend::models::{Item, NewItem};
-use bin::items::{get_items, insert_item, insert_item_plain, delete_item,get_items_with_id,get_my_feed};
-
 use rocket::data::ToByteUnit;
 use rocket::fairing::AdHoc;
-use rocket::serde::json::{Json};
 use rocket::{get, post, routes};
 use aws_sdk_s3::{Client, Error as AWSError};
 use rocket::Data;
@@ -25,65 +20,6 @@ fn index() -> &'static str {
 }
 
 // ---------------------------------- items ----------------------------------
-
-#[get("/wardrobe")]
-fn wardrobe() -> Json<Vec<Item>> {
-    get_items().into()
-}
-
-#[get("/my_wardrobe")]
-fn get_my_wardrobe(auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
-    let _id: i64 = auth_user.uid;
-    get_items_with_id(_id).into()
-}
-
-#[get("/my_feed")]
-fn my_feed(auth_user: AuthenticatedUser) -> Json<Vec<Item>>{
-    let _id: i64 = auth_user.uid;
-    get_my_feed(_id).into()
-}
-
-
-#[get("/wardrobe_plain")]
-fn wardrobe_plain() -> String {
-    let mut items_str = String::new();
-
-        for item in get_items() {
-            items_str.push_str("Item no: ");
-            items_str.push_str(&item.id.to_string());
-            items_str.push_str(":");
-            // TODO: add belonging to uid...
-            items_str.push_str(&item.name);
-            items_str.push_str(", ");
-            if item.description.is_some() {
-                items_str.push_str(&item.description.expect("no description"));
-                items_str.push_str(", ");
-            }
-            if item.tags.is_some() {
-                items_str.push_str("tags: ");
-                let tags: Vec<String> = item.tags.expect("no tags");
-                let tags_str: String  = tags.iter().map( |id| id.to_string() + ",").collect(); 
-                items_str.push_str(&tags_str);
-            }
-            items_str.push_str("\n");
-        }
-    return items_str;
-}
-
-#[post("/insert_item", format = "json", data = "<item>")]
-fn new_item(item: Json<NewItem>) {
-    insert_item(&item);
-}
-
-#[get("/insert_item_plain/<type_>/<name>")]
-fn new_item_plain(type_: &str, name: &str) {
-    insert_item_plain(type_, name);
-}
-
-#[get("/delete_item/<item_id>")]
-fn delete_item_req(item_id: i64) {
-    delete_item(item_id);
-}
 
 pub async fn upload_object(
     client: &Client,
@@ -140,14 +76,9 @@ async fn initialize_variables() -> Client{
 async fn rocket() -> _ {
     
     rocket::build()
-            .mount("/", routes![index, 
-                                wardrobe, wardrobe_plain,
-                                new_item_plain, new_item,
-                                delete_item_req,
-                                set_post_image,
-                                get_my_wardrobe,
-                                my_feed])
+            .mount("/", routes![index, set_post_image])
             .mount("/user", bin::users::routes())
+            .mount("/items", bin::items::routes())
             .mount("/likes", bin::likes::routes())
             .attach(AdHoc::on_ignite("Liftoff Message", |r| {
                 Box::pin(async move {
