@@ -20,6 +20,11 @@ fn wardrobe(auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
     get_items_with_id(_id).into()
 }
 
+#[get("/see_wardrobe/<see_id>")]
+fn see_wardrobe(see_id: i64, auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
+    get_items_with_id(see_id).into()
+}
+
 #[get("/feed")]
 fn feed(auth_user: AuthenticatedUser) -> Json<Vec<Item>>{
     let _id: i64 = auth_user.uid;
@@ -88,6 +93,6 @@ fn get_items_with_id(id: i64) -> Vec<Item> {
 }
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![wardrobe, feed,
+    routes![wardrobe, feed, see_wardrobe,
         insert_item, delete_item]
 }
