@@ -62,12 +62,14 @@ fn new_item(item: &NewItemUser) {
 }
 
 #[get("/delete/<id>")]
-fn delete_item(id: i64) {
+fn delete_item(id: i64, auth_user: AuthenticatedUser) {
 
     use drp02_backend::schema::items::dsl::*;
 
     let connection = establish_connection();
+
     diesel::delete(items.find(id))
+        .filter(uid.eq(auth_user.uid))
         .execute(&connection)
         .expect("Error deleting item");
 }
