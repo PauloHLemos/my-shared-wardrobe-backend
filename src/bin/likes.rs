@@ -103,7 +103,7 @@ fn get_liked_items_with_id(id : i64, auth_user: AuthenticatedUser) -> Json<Vec<I
 
     let connection = establish_connection();
 
-    ///let id: i64 = auth_user.uid;
+    //let id: i64 = auth_user.uid;
     let liked_ids = users.find(id)
         .load::<User>(&connection)
         .expect("Error loading user")

@@ -52,9 +52,9 @@ pub struct NewUserAuth {
 // ------------------------------------ item ------------------------------------------
 
 // extract info from items table
-#[derive(Queryable, Serialize, Debug)]
+#[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct Item {
-    pub id: i64,
+    pub item_id: i64,
     pub uid: i64,
     pub type_: String,
     pub name: String,

@@ -7,9 +7,12 @@ use self::diesel::prelude::*;
 use drp02_backend::auth::AuthenticatedUser;
 use drp02_backend::models::{Item, NewItem, NewItemUser, User};
 
+use std::env;
+use futures::executor::block_on;
 // use chrono::{NaiveDateTime, NaiveDate, NaiveTime};
 use rocket::serde::json::Json;
 use rocket::{get, post, routes};
+use meilisearch_sdk::client::*;
 
 
 pub fn main() {}
@@ -82,11 +85,24 @@ fn new_item(item: &NewItemUser) {
 
     use schema::items;
 
-    let _item: Item = diesel::insert_into(items::table)
+    let res_item: Item = diesel::insert_into(items::table)
         .values(item)
         .get_result(&connection)
         .expect("Error saving new item");
         // TODO: use .update
+
+
+    // index new item in mielisearch database, to be used for searching
+    block_on(async move {
+        let client = Client::new(env::var("MEILI_HOST").expect("error loading host env variable"),
+                             env::var("MEILI_API_KEY").expect("error loading api key env variable"));
+        
+
+        let items = client.index("items");
+        items.add_documents(&[res_item], Some("item_id")).await.unwrap();
+                // println!("{:?}", items.search().with_query("tshirt").execute::<Item>().await.unwrap().hits);
+
+    })
 }
 
 #[get("/delete/<id>")]
@@ -100,6 +116,17 @@ fn delete_item(id: i64, auth_user: AuthenticatedUser) {
         .filter(uid.eq(auth_user.uid))
         .execute(&connection)
         .expect("Error deleting item");
+    
+
+    // delete item from mieliesearch database
+    block_on(async move {
+        let client = Client::new(env::var("MEILI_HOST").expect("error loading host env variable"),
+                                env::var("MEILI_API_KEY").expect("error loading api key env variable"));
+
+        let mielie_items = client.index("items");
+        mielie_items.delete_documents(&vec![id]).await.unwrap()
+            .wait_for_completion(&client, None, None).await.unwrap();
+    })
 }
 
 // ---------------------------------------------------------------------------
