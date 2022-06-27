@@ -4,7 +4,7 @@ table! {
         uid -> Int8,
         #[sql_name = "type"]
         type_ -> Varchar,
-        name -> Varchar,
+        name -> Nullable<Varchar>,
         description -> Nullable<Varchar>,
         tags -> Nullable<Array<Text>>,
         pics -> Array<Text>,

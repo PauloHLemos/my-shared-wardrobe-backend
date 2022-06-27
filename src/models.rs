@@ -57,7 +57,7 @@ pub struct Item {
     pub item_id: i64,
     pub uid: i64,
     pub type_: String,
-    pub name: String,
+    pub name: Option<String>,
     pub description: Option<String>,
     pub tags: Option<Vec<String>>,
     pub pics: Vec<String>,
@@ -69,7 +69,7 @@ pub struct Item {
 #[derive(Deserialize)]
 pub struct NewItem<'a> {
     pub type_: &'a str,
-    pub name: &'a str,
+    pub name: Option<&'a str>,
     pub description: Option<&'a str>,
     pub tags: Option<Vec<&'a str>>,
     pub pics: Vec<&'a str>,
@@ -83,7 +83,7 @@ pub struct NewItem<'a> {
 pub struct NewItemUser<'a> {
     pub uid: i64,
     pub type_: &'a str,
-    pub name: &'a str,
+    pub name: Option<&'a str>,
     pub description: Option<&'a str>,
     pub tags: Option<Vec<&'a str>>,
     pub pics: Vec<&'a str>,
