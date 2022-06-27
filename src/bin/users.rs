@@ -293,5 +293,5 @@ fn set_phone_no(new_phone_no: i64, auth_user: AuthenticatedUser) {
 pub fn routes() -> Vec<rocket::Route> {
     routes![signup, login, logout, user_id, following, follow, unfollow,
             find_friends,get_user_user,get_other_user_by_id,
-            set_name, set_email]
+            set_name, set_email, set_phone_no]
 }
