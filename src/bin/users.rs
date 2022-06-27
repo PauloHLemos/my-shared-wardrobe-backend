@@ -254,8 +254,8 @@ fn find_friends() -> Json<Vec<User>>{
 }
 
 // -------------------------------------- updates --------------------------------------
-#[post("/change_name/<new_name>")]
-fn change_name(new_name: String, auth_user: AuthenticatedUser) {
+#[post("/set_name/<new_name>")]
+fn set_name(new_name: String, auth_user: AuthenticatedUser) {
     use drp02_backend::schema::users::dsl::*;
     let connection = establish_connection();
 
@@ -266,8 +266,8 @@ fn change_name(new_name: String, auth_user: AuthenticatedUser) {
         .expect("error liking image");
 }
 
-#[post("/change_email/<new_email>")]
-fn change_email(new_email: String, auth_user: AuthenticatedUser) {
+#[post("/set_email/<new_email>")]
+fn set_email(new_email: String, auth_user: AuthenticatedUser) {
     use drp02_backend::schema::users::dsl::*;
     let connection = establish_connection();
 
@@ -295,5 +295,5 @@ fn change_email(new_email: String, auth_user: AuthenticatedUser) {
 pub fn routes() -> Vec<rocket::Route> {
     routes![signup, login, logout, user_id, following, follow, unfollow,
             find_friends,get_user_user,get_other_user_by_id,
-            change_name, change_email]
+            set_name, set_email]
 }
