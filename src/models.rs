@@ -13,6 +13,7 @@ pub struct User {
     pub email: String,
     pub items_liked: Vec<i64>,
     pub users_following: Vec<i64>,
+    pub phone_no: Option<i64>,
 }
 
 // extract info from users_auth table
@@ -28,6 +29,7 @@ pub struct NewUserData<'a> {
     pub name: &'a str,
     pub email: &'a str,
     pub password: &'a str,
+    pub phone_no: Option<i64>,
 }
 
 // data passed to create new user in users table
@@ -38,6 +40,7 @@ pub struct NewUser<'a> {
     pub email: &'a str,
     pub items_liked: Vec<i64>,
     pub users_following: Vec<i64>,
+    pub phone_no: Option<i64>,
 }
 
 // data passed to users_auth table

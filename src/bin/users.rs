@@ -123,6 +123,7 @@ fn signup(signup_info: Json<NewUserData>, cookies: &CookieJar<'_>) {
         email: signup_info.email.clone(),
         items_liked: Vec::new(),
         users_following: Vec::new(),
+        phone_no: signup_info.phone_no.clone(),
     };
 
     let connection = establish_connection();
@@ -252,7 +253,47 @@ fn find_friends() -> Json<Vec<User>>{
     get_users().into()
 }
 
+// -------------------------------------- updates --------------------------------------
+#[post("/change_name/<new_name>")]
+fn change_name(new_name: String, auth_user: AuthenticatedUser) {
+    use drp02_backend::schema::users::dsl::*;
+    let connection = establish_connection();
+
+    let uid_ = auth_user.uid;
+    diesel::update(users.find(uid_))
+        .set(name.eq(new_name))
+        .execute(&connection)
+        .expect("error liking image");
+}
+
+#[post("/change_email/<new_email>")]
+fn change_email(new_email: String, auth_user: AuthenticatedUser) {
+    use drp02_backend::schema::users::dsl::*;
+    let connection = establish_connection();
+
+    let uid_ = auth_user.uid;
+    diesel::update(users.find(uid_))
+        .set(email.eq(new_email))
+        .execute(&connection)
+        .expect("error liking image");
+}
+
+// #[post("/change_phone_no/<new_phone_no>")]
+// fn change_phone_no(new_phone_no: String, auth_user: AuthenticatedUser) {
+//     use drp02_backend::schema::users::dsl::*;
+//     let connection = establish_connection();
+
+//     let uid_ = auth_user.uid;
+//     diesel::update(users.find(uid_))
+//         .set(phone_no.eq(Some(new_phone_no)))
+//         .execute(&connection)
+//         .expect("error liking image");
+// }
+
+
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![signup, login, logout, user_id, following, follow, unfollow,find_friends,get_user_user,get_other_user_by_id]
+    routes![signup, login, logout, user_id, following, follow, unfollow,
+            find_friends,get_user_user,get_other_user_by_id,
+            change_name, change_email]
 }
