@@ -278,19 +278,17 @@ fn set_email(new_email: String, auth_user: AuthenticatedUser) {
         .expect("error liking image");
 }
 
-// #[post("/change_phone_no/<new_phone_no>")]
-// fn change_phone_no(new_phone_no: String, auth_user: AuthenticatedUser) {
-//     use drp02_backend::schema::users::dsl::*;
-//     let connection = establish_connection();
+#[post("/set_phone_no/<new_phone_no>")]
+fn set_phone_no(new_phone_no: i64, auth_user: AuthenticatedUser) {
+    use drp02_backend::schema::users::dsl::*;
+    let connection = establish_connection();
 
-//     let uid_ = auth_user.uid;
-//     diesel::update(users.find(uid_))
-//         .set(phone_no.eq(Some(new_phone_no)))
-//         .execute(&connection)
-//         .expect("error liking image");
-// }
-
-
+    let uid_ = auth_user.uid;
+    diesel::update(users.find(uid_))
+        .set(phone_no.eq(Some(new_phone_no)))
+        .execute(&connection)
+        .expect("error liking image");
+}
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![signup, login, logout, user_id, following, follow, unfollow,
