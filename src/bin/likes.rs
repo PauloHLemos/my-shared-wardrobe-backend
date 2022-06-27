@@ -98,7 +98,7 @@ fn get_liked_items(auth_user: AuthenticatedUser) -> Json<Vec<Item>> {
 }
 
 #[get("/liked_items/<id>")]
-fn get_liked_items_with_id(id : i64, auth_user: AuthenticatedUser) -> Json<Vec<Item>> {
+fn get_liked_items_with_id(id : i64, _auth_user: AuthenticatedUser) -> Json<Vec<Item>> {
     use drp02_backend::schema::users::dsl::*;
 
     let connection = establish_connection();

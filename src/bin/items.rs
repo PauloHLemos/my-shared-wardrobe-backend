@@ -24,7 +24,7 @@ fn wardrobe(auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
 }
 
 #[get("/see_wardrobe/<see_id>")]
-fn see_wardrobe(see_id: i64, auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
+fn see_wardrobe(see_id: i64, _auth_user: AuthenticatedUser)  -> Json<Vec<Item>>{
     get_items_with_id(see_id).into()
 }
 
@@ -129,7 +129,7 @@ fn delete_item(id: i64, auth_user: AuthenticatedUser) {
     })
 }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
 
 fn get_items_with_id(id: i64) -> Vec<Item> {
     use drp02_backend::schema::items::dsl::*;
@@ -142,9 +142,35 @@ fn get_items_with_id(id: i64) -> Vec<Item> {
     
 }
 
+// ---------------------------------- update ---------------------------------------------
+
+#[post("/set_description/<item_id_>/<new_description>")]
+fn set_description(item_id_: i64, new_description: String, _auth_user: AuthenticatedUser) {
+    use drp02_backend::schema::items::dsl::*;
+    let connection = establish_connection();
+
+    // TODO: ensure item id belongs to user
+    diesel::update(items.find(item_id_))
+        .set(description.eq(Some(new_description)))
+        .execute(&connection)
+        .expect("error updating description");
+}
+
+#[post("/set_type/<item_id_>/<new_type>")]
+fn set_type(item_id_: i64, new_type: String, _auth_user: AuthenticatedUser) {
+    use drp02_backend::schema::items::dsl::*;
+    let connection = establish_connection();
+
+    // TODO: ensure item id belongs to user
+    diesel::update(items.find(item_id_))
+        .set(type_.eq(new_type))
+        .execute(&connection)
+        .expect("error updating type");
+}
+
 
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![wardrobe, feed, see_wardrobe,
-        insert_item, delete_item, discover]
+        insert_item, delete_item, discover, set_description, set_type]
 }

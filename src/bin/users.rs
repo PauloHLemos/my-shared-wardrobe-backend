@@ -189,7 +189,7 @@ fn get_user_user( auth_user: AuthenticatedUser) -> Json<Option<User>>{
 }
 
 #[get("/get_user_by_id/<id>")]
-fn get_other_user_by_id( id: i64, auth_user: AuthenticatedUser) -> Json<Option<User>>{
+fn get_other_user_by_id( id: i64, _auth_user: AuthenticatedUser) -> Json<Option<User>>{
     get_user_by_id(id).into()
 }
 
