@@ -279,7 +279,7 @@ fn set_email(new_email: String, auth_user: AuthenticatedUser) {
 }
 
 #[post("/set_phone_no/<new_phone_no>")]
-fn set_phone_no(new_phone_no: i64, auth_user: AuthenticatedUser) {
+fn set_phone_no(new_phone_no: String, auth_user: AuthenticatedUser) {
     use drp02_backend::schema::users::dsl::*;
     let connection = establish_connection();
 

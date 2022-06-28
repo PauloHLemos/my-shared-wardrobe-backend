@@ -20,7 +20,7 @@ table! {
         email -> Varchar,
         items_liked -> Array<Int8>,
         users_following -> Array<Int8>,
-        phone_no -> Nullable<Int8>,
+        phone_no -> Nullable<Varchar>,
     }
 }
 
